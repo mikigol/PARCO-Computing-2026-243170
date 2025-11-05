@@ -85,7 +85,7 @@ int main(int argc, char *argv[]) {
         
         
         GET_TIME(start);
-        csr_spmv_parallel(mat, x, y, 8);
+        csr_spmv_parallel(mat, x, y, num_threads);
         GET_TIME(stop);
         
         total_time_csr_par += stop - start;
@@ -136,7 +136,7 @@ int main(int argc, char *argv[]) {
         
         
         GET_TIME(start);
-        csb_spmv_parallel(csb, x, y, 8);
+        csb_spmv_parallel(csb, x, y, num_threads);
         GET_TIME(stop);
         
         total_time_csb_par += stop - start;
