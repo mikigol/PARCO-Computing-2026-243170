@@ -64,28 +64,7 @@ int main(int argc, char *argv[]) {
     }
 
    
-/*
-    // ============================================
-    // TEST CSR PARALLELO
-    // ============================================
-    printf("\n===== CSR PARALLEL (%d threads) =====\n", num_threads);
-    double total_time_csr_par = 0.0;
-    dummy = 0.0;
-    memset(y, 0, mat->M * sizeof(double));
-    for(int iter = 0; iter < ITER; iter++) {
-        
-        
-        GET_TIME(start);
-        csr_spmv_parallel(mat, x, y, 8);
-        GET_TIME(stop);
-        
-        total_time_csr_par += stop - start;
-        
-        for(int i = 0; i < mat->M; i++) {
-            dummy += y[i];
-        }
-    }
-*/
+
     // Cleanup
     free(x);
     free(y);
