@@ -114,8 +114,7 @@ void csb_spmv_parallel(CSB_Matrix *csb, double *x, double *y, int num_threads) {
             int block_end = csb->blkptr[block_id + 1];
             
             for(int k = block_start; k < block_end; k++) {
-                int i = row_start + csb->rowind[k];
-                int j = col_start + csb->colind[k];
+               
                 y_temp[csb->rowind[k]] += csb->val[k] * x[j];
             }
         }
