@@ -38,36 +38,7 @@ int main(int argc, char *argv[]) {
     for(int i = 0; i < mat->M; i++) {
         x[i] = 1.0;
     }
-/*
-    // ============================================
-    // TEST CSR SEQUENZIALE
-    // ============================================
-    printf("\n===== CSR SEQUENTIAL =====\n");
-    double start, stop;
-    double total_time_csr_seq = 0.0;
-    double dummy = 0.0;
-    
-    memset(y, 0, mat->M * sizeof(double));
-    
-    for(int iter = 0; iter < ITER; iter++) {
-        
-        
-        GET_TIME(start);
-        csr_spmv_seq(mat, x, y);
-        GET_TIME(stop);
-        
-        total_time_csr_seq += stop - start;
-        
-        for(int i = 0; i < mat->M; i++) {
-            dummy += y[i];
-        }
-    }
 
-   
-*/
-    // ============================================
-    // TEST CSR PARALLELO
-    // ============================================
     printf("\n===== CSR PARALLEL (%d threads) =====\n", num_threads);
     double total_time_csr_par = 0.0;
     double start,stop;
