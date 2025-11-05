@@ -13,47 +13,89 @@
 
 Matrix* read_matrix(const char *filename) {
     Matrix *mat = (Matrix*)malloc(sizeof(Matrix));
-    
-    MM_typecode matcode;
-    FILE *f = fopen(filename, "r");
-    if (!f) {
-        fprintf(stderr, "Error opening file: %s\n", filename);
-        exit(1);
-    }
+       
+       MM_typecode matcode;
+       FILE *f = fopen(filename, "r");
+       if (!f) {
+           fprintf(stderr, "Error opening file: %s\n", filename);
+           exit(1);
+       }
 
-    if (mm_read_banner(f, &matcode) != 0) {
-        fprintf(stderr, "Could not process Matrix Market banner.\n");
-        exit(1);
-    }
+       if (mm_read_banner(f, &matcode) != 0) {
+           fprintf(stderr, "Could not process Matrix Market banner.\n");
+           exit(1);
+       }
 
-    if (mm_is_complex(matcode) && mm_is_matrix(matcode) &&
-            mm_is_sparse(matcode)) {
-        fprintf(stderr, "This application does not support complex matrices.\n");
-        exit(1);
-    }
+       // ===== STAMPA INFORMAZIONI MATRICE =====
+       printf("Matrix type: %s\n", mm_typecode_to_str(matcode));
+       printf("  Real: %s\n", mm_is_real(matcode) ? "yes" : "no");
+       printf("  Complex: %s\n", mm_is_complex(matcode) ? "yes" : "no");
+       printf("  Symmetric: %s\n", mm_is_symmetric(matcode) ? "yes" : "no");
+       printf("  Pattern: %s\n", mm_is_pattern(matcode) ? "yes" : "no");
 
-    if (mm_read_mtx_crd_size(f, &mat->M, &mat->N, &mat->nz) != 0) {
-        fprintf(stderr, "Error reading matrix size.\n");
-        exit(1);
-    }
+       // ===== VALIDAZIONE FORMATO =====
+       if (!mm_is_matrix(matcode) || !mm_is_sparse(matcode)) {
+           fprintf(stderr, "Error: only supports matrix, sparse format.\n");
+           exit(1);
+       }
 
-    // Alloca COO
-    mat->I = (int*)malloc(mat->nz * sizeof(int));
-    mat->J = (int*)malloc(mat->nz * sizeof(int));
-    mat->val = (double*)malloc(mat->nz * sizeof(double));
+       // ===== LEGGI DIMENSIONI =====
+       if (mm_read_mtx_crd_size(f, &mat->M, &mat->N, &mat->nz) != 0) {
+           fprintf(stderr, "Error reading matrix size.\n");
+           exit(1);
+       }
 
-    // Leggi COO
-    for (int i = 0; i < mat->nz; i++) {
-        fscanf(f, "%d %d %lg\n", &mat->I[i], &mat->J[i], &mat->val[i]);
-        mat->I[i]--;  // Converti da 1-based a 0-based
-        mat->J[i]--;
-    }
+       printf("Matrix size: %d x %d, NNZ (file): %d\n", mat->M, mat->N, mat->nz);
 
-    fclose(f);
-    
-    printf("Matrix loaded: %d x %d, nnz: %d\n", mat->M, mat->N, mat->nz);
-    
-    return mat;
+       // ===== ALLOCA CON MARGINE PER SIMMETRIA =====
+       int max_nz = mm_is_symmetric(matcode) ? (2 * mat->nz) : mat->nz;
+       mat->I = (int*)malloc(max_nz * sizeof(int));
+       mat->J = (int*)malloc(max_nz * sizeof(int));
+       mat->val = (double*)malloc(max_nz * sizeof(double));
+
+       // ===== LEGGI ELEMENTI CON GESTIONE SIMMETRIA E PATTERN =====
+       int nz_actual = 0;
+       
+       for (int i = 0; i < mat->nz; i++) {
+           int row, col;
+           double value = 1.0;  // Default per pattern
+           
+           // Leggi riga e colonna
+           fscanf(f, "%d %d", &row, &col);
+           
+           // Se NON è pattern, leggi il valore
+           if (!mm_is_pattern(matcode)) {
+               fscanf(f, "%lf", &value);
+           }
+           
+           // Converti da 1-based a 0-based
+           row--;
+           col--;
+           
+           // Aggiungi elemento (row, col)
+           mat->I[nz_actual] = row;
+           mat->J[nz_actual] = col;
+           mat->val[nz_actual] = value;
+           nz_actual++;
+           
+           // Se simmetrica e OFF-diagonale, aggiungi simmetrico (col, row)
+           if (mm_is_symmetric(matcode) && row != col) {
+               mat->I[nz_actual] = col;
+               mat->J[nz_actual] = row;
+               mat->val[nz_actual] = value;
+               nz_actual++;
+           }
+       }
+
+       fclose(f);
+       
+       // ===== AGGIORNA NNZ FINALE =====
+       mat->nz = nz_actual;
+       mat->is_symmetric = mm_is_symmetric(matcode);
+       
+       printf("Actual NNZ (after symmetry expansion): %d\n\n", mat->nz);
+       
+       return mat;
 }
 
 void coo_to_csr(Matrix *mat) {
