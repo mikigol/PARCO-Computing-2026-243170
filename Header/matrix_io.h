@@ -12,6 +12,7 @@ typedef struct {
     int M;              // righe
     int N;              // colonne
     int nz;             // non-zero
+    int is_symmetric;
     int *I, *J;         // coordinate COO
     double *val;        // valori
     int *prefixSum;     // CSR prefix
