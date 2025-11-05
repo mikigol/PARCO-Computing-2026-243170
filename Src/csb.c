@@ -101,7 +101,7 @@ void csb_spmv_seq(CSB_Matrix *csb, double *x, double *y) {
 }
 
 void csb_spmv_parallel(CSB_Matrix *csb, double *x, double *y, int num_threads) {
-   #pragma omp parallel for num_threads(num_threads) schedule(dynamic)
+   #pragma omp parallel for num_threads(num_threads) schedule(runtime)
     for(int bi = 0; bi < csb->num_blockrows; bi++) {
         int row_start = bi * csb->beta;
         
