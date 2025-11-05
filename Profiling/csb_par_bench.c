@@ -59,7 +59,7 @@ int main(int argc, char *argv[]) {
         
         
         GET_TIME(start);
-        csb_spmv_parallel(csb, x, y, 8);
+        csb_spmv_parallel(csb, x, y, num_threads);
         GET_TIME(stop);
         
         total_time_csb_par += stop - start;
