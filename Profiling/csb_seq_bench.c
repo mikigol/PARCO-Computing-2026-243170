@@ -43,18 +43,15 @@ int main(int argc, char *argv[]) {
         x[i] = 1.0;
     }
 
-    // ============================================
-    // TEST CSR SEQUENZIALE
-    // ============================================
+   
+
    
     double start, stop;
     double dummy = 0.0;
     
     
 
-    // ============================================
-    // TEST CSB SEQUENZIALE
-    // ============================================
+
    printf("\n===== CSB SEQUENTIAL =====\n");
     double total_time_csb_seq = 0.0;
     dummy = 0.0;
@@ -73,30 +70,7 @@ int main(int argc, char *argv[]) {
         }
     }
 
- 
-/*
-    // ============================================
-    // TEST CSB PARALLELO
-    // ============================================
-    printf("\n===== CSB PARALLEL (%d threads) =====\n", num_threads);
-    double total_time_csb_par = 0.0;
-    dummy = 0.0;
-    memset(y, 0, mat->M * sizeof(double));
-    for(int iter = 0; iter < ITER; iter++) {
-        
-        
-        GET_TIME(start);
-        csb_spmv_parallel(csb, x, y, 8);
-        GET_TIME(stop);
-        
-        total_time_csb_par += stop - start;
-        
-        for(int i = 0; i < mat->M; i++) {
-            dummy += y[i];
-        }
-    }
 
- */
     // Cleanup
     free(x);
     free(y);
