@@ -1,14 +1,14 @@
 CC = gcc
-CFLAGS = -Wall -g -O3 -fopenmp -std=c99
+CFLAGS = -Wall -g -O3 -fopenmp -std=c99 -IHeader
 LIBS = -lm
 
 # Variabili configurabili
-MATRIX ?= bcsstk13.mtx
+MATRIX ?= Matrix/bcsstk13.mtx
 THREADS ?= 4
 SCHEDULE ?= static
 
-
-SRCS = main.c matrix_io.c csb.c mmio.c csr.c
+# File sorgente nella cartella Src/
+SRCS = Src/main.c Src/matrix_io.c Src/csb.c Src/mmio.c Src/csr.c
 OBJS = $(SRCS:.c=.o)
 TARGET = esegui
 
@@ -26,19 +26,16 @@ clean:
 	rm -f $(OBJS) $(TARGET)
 
 run: $(TARGET)
-	OMP_SCHEDULE=$(SCHEDULE) ./$(TARGET) "$(MATRIX)" $(THREADS)
+	OMP_NUM_THREADS=$(THREADS) OMP_SCHEDULE=$(SCHEDULE) ./$(TARGET) "$(MATRIX)" $(THREADS)
 
 help:
 	@echo "=== Sparse Matrix Multiplication ==="
 	@echo "Targets:"
 	@echo "  make all     - Compila il programma"
-	@echo "  make run     - Esegue, default: matrice 'bcsstk13.mtx' e 4 thread"
+	@echo "  make run     - Esegue con default"
 	@echo "  make clean   - Rimuove file oggetto e eseguibile"
-	@echo "Variabili (esempio di uso: make run MATRIX=mymat.mtx THREADS=8):"
-	@echo "  MATRIX  - nome file matrice (default: bcsstk13.mtx)"
-	@echo "  THREADS - numero thread da passare al programma (default: 4)"
-
-
-
-
-
+	@echo ""
+	@echo "Variabili (esempio: make run MATRIX=Matrix/bcsstk25.mtx THREADS=8 SCHEDULE=static):"
+	@echo "  MATRIX   - percorso file matrice (default: Matrix/bcsstk13.mtx)"
+	@echo "  THREADS  - numero thread (default: 4)"
+	@echo "  SCHEDULE - schedule OpenMP: static, dynamic, guided (default: static)"
