@@ -101,12 +101,14 @@ void csb_spmv_seq(CSB_Matrix *csb, double *x, double *y) {
 }
 
 void csb_spmv_parallel(CSB_Matrix *csb, double *x, double *y, int num_threads) {
-    #pragma omp parallel for num_threads(num_threads) schedule(runtime)
+   #pragma omp parallel for num_threads(num_threads) schedule(dynamic)
     for(int bi = 0; bi < csb->num_blockrows; bi++) {
         int row_start = bi * csb->beta;
+        
+        // Vettore PRIVATO per questa blockrow
         double *y_temp = (double*)calloc(csb->beta, sizeof(double));
-
-        #pragma omp parallel for schedule(runtime)
+        
+        // Ciclo seriale: ogni thread elabora la sua blockrow
         for(int bj = 0; bj < csb->num_blockcols; bj++) {
             int col_start = bj * csb->beta;
             int block_id = bi * csb->num_blockcols + bj;
@@ -114,11 +116,12 @@ void csb_spmv_parallel(CSB_Matrix *csb, double *x, double *y, int num_threads) {
             int block_end = csb->blkptr[block_id + 1];
             
             for(int k = block_start; k < block_end; k++) {
-               
-                y_temp[csb->rowind[k]] += csb->val[k] * x[j];
+                y_temp[csb->rowind[k]] += csb->val[k] * x[col_start + csb->colind[k]];
             }
         }
-         for(int i = 0; i < csb->beta; i++) {
+        
+       
+        for(int i = 0; i < csb->beta; i++) {
             y[row_start + i] += y_temp[i];
         }
         
