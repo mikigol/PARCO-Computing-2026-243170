@@ -1,17 +1,17 @@
 CC = gcc
-CFLAGS = -Wall -O3 -fopenmp -std=c99 -I..
+CFLAGS = -Wall -O3 -fopenmp -std=c99 -I../Header
 LIBS = -lm
 
 # Parametri personalizzabili
-MATRIX ?= ../bcsstk13.mtx
+MATRIX ?= ../Matrix/bcsstk13.mtx
 THREADS ?= 4
 SCHEDULE ?= static
 
-# Sorgenti
-CSR_SEQ_SRC = csr_seq_bench.c ../matrix_io.c ../csr.c ../mmio.c
-CSR_PAR_SRC = csr_par_bench.c ../matrix_io.c ../csr.c ../mmio.c
-CSB_SEQ_SRC = csb_seq_bench.c ../matrix_io.c ../csb.c ../mmio.c
-CSB_PAR_SRC = csb_par_bench.c ../matrix_io.c ../csb.c ../mmio.c
+# Sorgenti (da cartelle parallele)
+CSR_SEQ_SRC = csr_seq_bench.c ../Src/matrix_io.c ../Src/csr.c ../Src/mmio.c
+CSR_PAR_SRC = csr_par_bench.c ../Src/matrix_io.c ../Src/csr.c ../Src/mmio.c
+CSB_SEQ_SRC = csb_seq_bench.c ../Src/matrix_io.c ../Src/csb.c ../Src/mmio.c
+CSB_PAR_SRC = csb_par_bench.c ../Src/matrix_io.c ../Src/csb.c ../Src/mmio.c
 
 .PHONY: all clean perf_csr_seq perf_csr_par perf_csb_seq perf_csb_par
 
@@ -49,4 +49,5 @@ perf_csb_par:
 
 clean:
 	rm -f csr_seq_bench csr_par_bench csb_seq_bench csb_par_bench
+
 
