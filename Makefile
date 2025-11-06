@@ -8,7 +8,7 @@ THREADS ?= 4
 SCHEDULE ?= static
 
 # File sorgente nella cartella Src/
-SRCS = Src/main.c Src/matrix_io.c Src/csb.c Src/mmio.c Src/csr.c
+SRCS = Src/main.c Src/matrix_io.c  Src/mmio.c Src/csr.c
 OBJS = $(SRCS:.c=.o)
 TARGET = esegui
 
