@@ -50,10 +50,10 @@ int main(int argc, char *argv[]) {
     double total_time_csr_seq = 0.0;
     double dummy = 0.0;
     
-    memset(y, 0, mat->M * sizeof(double));
+   
     
     for(int iter = 0; iter < ITER; iter++) {
-        
+     memset(y, 0, mat->M * sizeof(double));
         
         GET_TIME(start);
         csr_spmv_seq(mat, x, y);
@@ -76,9 +76,9 @@ int main(int argc, char *argv[]) {
     printf("\n===== CSR  PARALLEL (%d threads) =====\n", num_threads);
     double total_time_csr_par = 0.0;
     dummy = 0.0;
-    memset(y, 0, mat->M * sizeof(double));
+	
     for(int iter = 0; iter < ITER; iter++) {
-        
+         memset(y, 0, mat->M * sizeof(double));
         
         GET_TIME(start);
         csr_spmv_parallel(mat, x, y, num_threads);
