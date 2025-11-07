@@ -63,6 +63,7 @@ int main(int argc, char *argv[]) {
     printf("║  CSR SEQUENTIAL (%d runs x %d iterations)                 ║\n", NRUNS, ITER);
     printf("╚═══════════════════════════════════════════════════════════════╝\n");
     
+    
     for(int run = 0; run < NRUNS; run++) {
         double start, stop;
         double total_time = 0.0;
@@ -119,7 +120,7 @@ int main(int argc, char *argv[]) {
             for(int run = 0; run < NRUNS; run++) {
                 double start, stop;
                 double total_time = 0.0;
-                double dummy = 0.0;
+                double dummy_2 = 0.0;
                 
                 printf("    Run %d/%d...\n", run + 1, NRUNS);
                 
@@ -132,14 +133,14 @@ int main(int argc, char *argv[]) {
                     
                     total_time += stop - start;
                     for(int i = 0; i < mat->M; i++) {
-                        dummy += y[i];
+                        dummy_2 += y[i];
                     }
                 }
                 
                 times_par[run] = total_time / ITER;
             }
             
-            printf("\n  Dummy checksum: %.6e (for compiler optimization prevention)\n", dummy);
+            printf("\n  Dummy checksum: %.6e (for compiler optimization prevention)\n", dummy_2);
             // Calcola 90% percentile per questa combinazione
             double p90_par = calculate_percentile_90(times_par, NRUNS);
             double speedup = p90_seq / p90_par;
