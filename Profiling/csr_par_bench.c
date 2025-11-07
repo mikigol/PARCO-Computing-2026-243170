@@ -80,10 +80,11 @@ int main(int argc, char *argv[]) {
                     break;
             }
             
-            for(int i = 0; i < mat->M; i++) {
+           
+        }
+         for(int i = 0; i < mat->M; i++) {
                 dummy += y[i];
             }
-        }
          printf("Dummy checksum: %.6e\n", dummy);
     }
     
