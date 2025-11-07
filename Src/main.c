@@ -63,11 +63,11 @@ int main(int argc, char *argv[]) {
     printf("║  CSR SEQUENTIAL (%d runs x %d iterations)                 ║\n", NRUNS, ITER);
     printf("╚═══════════════════════════════════════════════════════════════╝\n");
     
-    
+    double dummy = 0.0;
     for(int run = 0; run < NRUNS; run++) {
         double start, stop;
         double total_time = 0.0;
-        double dummy = 0.0;
+        
         
         printf("  Run %d/%d...\n", run + 1, NRUNS);
         
