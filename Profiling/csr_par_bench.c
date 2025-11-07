@@ -45,9 +45,9 @@ int main(int argc, char *argv[]) {
     printf("║  %d runs x %d iterations\n", NRUNS, ITER);
     printf("╚═══════════════════════════════════════════════════════════════╝\n\n");
     
-    double dummy= 0.0;
+   
     for(int run = 0; run < NRUNS; run++) {
-        
+        double dummy= 0.0;
         printf("  Run %d/%d...\n", run + 1, NRUNS);
         
         for(int iter = 0; iter < ITER; iter++) {
@@ -84,11 +84,10 @@ int main(int argc, char *argv[]) {
                 dummy += y[i];
             }
         }
+         printf("Dummy checksum: %.6e\n", dummy);
     }
     
-    printf("\n╔═══════════════════════════════════════════════════════════════╗\n");
-    printf("║ Dummy checksum: %.6e\n", dummy);
-    printf("╚═══════════════════════════════════════════════════════════════╝\n");
+    
 
     free(x);
     free(y);
