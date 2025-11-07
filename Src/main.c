@@ -11,6 +11,24 @@
 #define ITER 10000
 #define NRUNS 10
 
+
+int compare_double(const void *a, const void *b) {
+    double diff = (*(double*)a - *(double*)b);
+    return (diff > 0) - (diff < 0);
+}
+
+double calculate_percentile_90(double *times, int n) {
+    qsort(times, n, sizeof(double), compare_double);
+    double index = 0.90 * (n - 1);
+    int lower = (int)floor(index);
+    int upper = (int)ceil(index);
+    
+    if (lower == upper) return times[lower];
+    
+    double weight = index - lower;
+    return times[lower] * (1 - weight) + times[upper] * weight;
+}
+
 int main(int argc, char *argv[]) {
     if(argc < 2) {
         fprintf(stderr, "Usage: %s <matrix.mtx> [num_threads]\n", argv[0]);
