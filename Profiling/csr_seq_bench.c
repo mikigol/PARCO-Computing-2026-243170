@@ -2,35 +2,51 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 #include <omp.h>
 #include "matrix_io.h"
 #include "csr.h"
 #include "my_timer.h"
 
 #define ITER 10000
+#define NRUNS 10
+
+
+int compare_double(const void *a, const void *b) {
+    double diff = (*(double*)a - *(double*)b);
+    return (diff > 0) - (diff < 0);
+}
+
+double calculate_percentile_90(double *times, int n) {
+    qsort(times, n, sizeof(double), compare_double);
+    double index = 0.90 * (n - 1);
+    int lower = (int)floor(index);
+    int upper = (int)ceil(index);
+    
+    if (lower == upper) return times[lower];
+    
+    double weight = index - lower;
+    return times[lower] * (1 - weight) + times[upper] * weight;
+}
 
 int main(int argc, char *argv[]) {
     if(argc < 2) {
-        fprintf(stderr, "Usage: %s <matrix.mtx>\n", argv[0]);
+        fprintf(stderr, "Usage: %s <matrix.mtx> [num_threads]\n", argv[0]);
         return 1;
     }
     
     int num_threads = 4;
-        if(argc >= 3) {
-            num_threads = atoi(argv[2]);
-            if(num_threads <= 0) {
-                fprintf(stderr, "Error: num_threads deve essere > 0\n");
-                return 1;
-            }
+    if(argc >= 3) {
+        num_threads = atoi(argv[2]);
+        if(num_threads <= 0) {
+            fprintf(stderr, "Error: num_threads deve essere > 0\n");
+            return 1;
         }
+    }
 
-    // Leggi matrice
     Matrix *mat = read_matrix(argv[1]);
-    // Converti a CSR
     coo_to_csr(mat);
 
-    
-    // Alloca vettori
     double *x = (double*)calloc(mat->M, sizeof(double));
     double *y = (double*)calloc(mat->M, sizeof(double));
     
@@ -38,38 +54,42 @@ int main(int argc, char *argv[]) {
         x[i] = 1.0;
     }
 
+    double times_seq[NRUNS];
+
     // ============================================
     // TEST CSR SEQUENZIALE
     // ============================================
-    printf("\n===== CSR SEQUENTIAL =====\n");
-    double start, stop;
-    double total_time_csr_seq = 0.0;
-    double dummy = 0.0;
+    printf("\n╔═══════════════════════════════════════════════════════════════╗\n");
+    printf("║  CSR SEQUENTIAL (%d runs x %d iterations)                 ║\n", NRUNS, ITER);
+    printf("╚═══════════════════════════════════════════════════════════════╝\n");
     
-    memset(y, 0, mat->M * sizeof(double));
     
-    for(int iter = 0; iter < ITER; iter++) {
+    for(int run = 0; run < NRUNS; run++) {
+        double start, stop;
+        double total_time = 0.0;
+        double dummy = 0.0;
         
+        printf("  Run %d/%d...\n", run + 1, NRUNS);
         
-        GET_TIME(start);
-        csr_spmv_seq(mat, x, y);
-        GET_TIME(stop);
-        
-        total_time_csr_seq += stop - start;
-        
-        for(int i = 0; i < mat->M; i++) {
+        for(int iter = 0; iter < ITER; iter++) {
+            memset(y, 0, mat->M * sizeof(double));
+            
+            GET_TIME(start);
+            csr_spmv_seq(mat, x, y);
+            GET_TIME(stop);
+            
+            total_time += stop - start;
+
+            for(int i = 0; i < mat->M; i++) {
             dummy += y[i];
+            }
         }
+        times_seq[run] = total_time / ITER;
     }
-
-   
-
-    // Cleanup
+    
     free(x);
     free(y);
     free_matrix(mat);
 
     return 0;
 }
-
-
