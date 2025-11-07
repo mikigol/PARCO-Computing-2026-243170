@@ -61,9 +61,9 @@ int main(int argc, char *argv[]) {
     printf("╚═══════════════════════════════════════════════════════════════╝\n");
     
    
-    
+    double dummy = 0.0;
     for(int run = 0; run < NRUNS; run++) {
-        double dummy = 0.0;
+        
         
         printf("  Run %d/%d...\n", run + 1, NRUNS);
         
