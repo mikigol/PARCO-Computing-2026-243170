@@ -9,7 +9,7 @@
 #include "my_timer.h"
 
 #define ITER 10000
-#define NRUNS 10
+#define NRUNS 5
 
 
 int compare_double(const void *a, const void *b) {
@@ -53,9 +53,6 @@ int main(int argc, char *argv[]) {
     for(int i = 0; i < mat->M; i++) {
         x[i] = 1.0;
     }
-
-    double times_seq[NRUNS];
-
     // ============================================
     // TEST CSR SEQUENZIALE
     // ============================================
@@ -65,8 +62,6 @@ int main(int argc, char *argv[]) {
     
     
     for(int run = 0; run < NRUNS; run++) {
-        double start, stop;
-        double total_time = 0.0;
         double dummy = 0.0;
         
         printf("  Run %d/%d...\n", run + 1, NRUNS);
@@ -74,9 +69,9 @@ int main(int argc, char *argv[]) {
         for(int iter = 0; iter < ITER; iter++) {
             memset(y, 0, mat->M * sizeof(double));
             
-            GET_TIME(start);
+            
             csr_spmv_seq(mat, x, y);
-            GET_TIME(stop);
+            
             
             total_time += stop - start;
 
@@ -84,7 +79,6 @@ int main(int argc, char *argv[]) {
             dummy += y[i];
             }
         }
-        times_seq[run] = total_time / ITER;
     }
     
     free(x);
