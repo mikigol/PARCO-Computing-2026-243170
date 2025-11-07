@@ -66,6 +66,7 @@ int main(int argc, char *argv[]) {
     for(int run = 0; run < NRUNS; run++) {
         double start, stop;
         double total_time = 0.0;
+        double dummy = 0.0;
         
         printf("  Run %d/%d...\n", run + 1, NRUNS);
         
@@ -77,12 +78,19 @@ int main(int argc, char *argv[]) {
             GET_TIME(stop);
             
             total_time += stop - start;
+
+            for(int i = 0; i < mat->M; i++) {
+            dummy += y[i];
+            }
         }
+       
+          
         
         times_seq[run] = total_time / ITER;
         printf("    Avg time: %.6f sec (%.4f ms)\n", times_seq[run], times_seq[run] * 1000);
     }
-    
+
+    printf("\n  Dummy checksum: %.6e (for compiler optimization prevention)\n", dummy);
     double p90_seq = calculate_percentile_90(times_seq, NRUNS);
     
     printf("\n► Sequential 90%% Percentile: %.4f ms ← REPORT THIS\n", p90_seq * 1000);
@@ -111,6 +119,7 @@ int main(int argc, char *argv[]) {
             for(int run = 0; run < NRUNS; run++) {
                 double start, stop;
                 double total_time = 0.0;
+                double dummy = 0.0;
                 
                 printf("    Run %d/%d...\n", run + 1, NRUNS);
                 
@@ -122,11 +131,15 @@ int main(int argc, char *argv[]) {
                     GET_TIME(stop);
                     
                     total_time += stop - start;
+                    for(int i = 0; i < mat->M; i++) {
+                        dummy += y[i];
+                    }
                 }
                 
                 times_par[run] = total_time / ITER;
             }
             
+            printf("\n  Dummy checksum: %.6e (for compiler optimization prevention)\n", dummy);
             // Calcola 90% percentile per questa combinazione
             double p90_par = calculate_percentile_90(times_par, NRUNS);
             double speedup = p90_seq / p90_par;
