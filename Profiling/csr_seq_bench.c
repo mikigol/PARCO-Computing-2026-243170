@@ -60,9 +60,10 @@ int main(int argc, char *argv[]) {
     printf("║  CSR SEQUENTIAL (%d runs x %d iterations)                 ║\n", NRUNS, ITER);
     printf("╚═══════════════════════════════════════════════════════════════╝\n");
     
-    
+   
+    double dummy = 0.0;
     for(int run = 0; run < NRUNS; run++) {
-        double dummy = 0.0;
+    
         
         printf("  Run %d/%d...\n", run + 1, NRUNS);
         
@@ -73,7 +74,7 @@ int main(int argc, char *argv[]) {
             csr_spmv_seq(mat, x, y);
             
             
-            total_time += stop - start;
+       
 
             for(int i = 0; i < mat->M; i++) {
             dummy += y[i];
