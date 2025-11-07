@@ -24,11 +24,11 @@ csr_par_bench: $(CSR_PAR_SRC)
 
 perf_csr_seq:
 	perf stat -e cache-references,cache-misses,L1-dcache-load-misses,LLC-load-misses \
-	./csr_seq_bench $(MATRIX)
+	./csr_seq_bench "$(MATRIX)"
 
 perf_csr_par:
 	perf stat -e cache-references,cache-misses,L1-dcache-load-misses,LLC-load-misses \
-	./csr_par_bench $(MATRIX) $(THREADS) $(SCHEDULE) $(CHUNK)
+	./csr_par_bench "$(MATRIX)" $(THREADS) $(SCHEDULE) $(CHUNK)
 
 clean:
 	rm -f csr_seq_bench csr_par_bench
