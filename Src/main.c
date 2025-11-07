@@ -79,12 +79,11 @@ int main(int argc, char *argv[]) {
             GET_TIME(stop);
             
             total_time += stop - start;
-
-            for(int i = 0; i < mat->M; i++) {
-            dummy += y[i];
-            }
         }
-       
+        
+           for(int i = 0; i < mat->M; i++) {
+                dummy += y[i];
+            }
           
         
         times_seq[run] = total_time / ITER;
@@ -133,11 +132,11 @@ int main(int argc, char *argv[]) {
                     GET_TIME(stop);
                     
                     total_time += stop - start;
-                    for(int i = 0; i < mat->M; i++) {
+                    
+                }
+                for(int i = 0; i < mat->M; i++) {
                         dummy_2 += y[i];
                     }
-                }
-                
                 times_par[run] = total_time / ITER;
             }
             
