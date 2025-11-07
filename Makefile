@@ -5,10 +5,9 @@ LIBS = -lm
 # Variabili configurabili
 MATRIX ?= Matrix/bcsstk13.mtx
 THREADS ?= 4
-SCHEDULE ?= static
 
 # File sorgente nella cartella Src/
-SRCS = Src/main.c Src/matrix_io.c  Src/mmio.c Src/csr.c
+SRCS = Src/main.c Src/matrix_io.c Src/mmio.c Src/csr.c
 OBJS = $(SRCS:.c=.o)
 TARGET = esegui
 
@@ -26,16 +25,27 @@ clean:
 	rm -f $(OBJS) $(TARGET)
 
 run: $(TARGET)
-	OMP_NUM_THREADS=$(THREADS) OMP_SCHEDULE=$(SCHEDULE) ./$(TARGET) "$(MATRIX)" $(THREADS)
+	./$(TARGET) "$(MATRIX)" $(THREADS)
 
 help:
-	@echo "=== Sparse Matrix Multiplication ==="
+	@echo "=== CSR SpMV Benchmark (Schedule Comparison) ==="
+	@echo ""
 	@echo "Targets:"
 	@echo "  make all     - Compila il programma"
-	@echo "  make run     - Esegue con default"
+	@echo "  make run     - Esegue il benchmark completo"
 	@echo "  make clean   - Rimuove file oggetto e eseguibile"
 	@echo ""
-	@echo "Variabili (esempio: make run MATRIX=Matrix/bcsstk25.mtx THREADS=8 SCHEDULE=static):"
+	@echo "Variabili:"
 	@echo "  MATRIX   - percorso file matrice (default: Matrix/bcsstk13.mtx)"
 	@echo "  THREADS  - numero thread (default: 4)"
-	@echo "  SCHEDULE - schedule OpenMP: static, dynamic, guided (default: static)"
+	@echo ""
+	@echo "Esempi:"
+	@echo "  make run MATRIX=Matrix/g7jac200.mtx THREADS=8"
+	@echo "  make run MATRIX=Matrix/bcsstk25.mtx THREADS=16"
+	@echo ""
+	@echo "NOTA: Il programma testa automaticamente:"
+	@echo "      - 3 schedule types: static, dynamic, guided"
+	@echo "      - 3 chunk sizes: 10, 100, 1000"
+	@echo "      - 10 runs x 10000 iterations per test"
+	@echo "      - Report con 90% percentile per ogni combinazione"
+
