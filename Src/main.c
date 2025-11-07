@@ -138,9 +138,10 @@ int main(int argc, char *argv[]) {
                         dummy_2 += y[i];
                     }
                 times_par[run] = total_time / ITER;
+                printf("\n  Dummy checksum: %.6e (for compiler optimization prevention)\n", dummy_2);
             }
             
-            printf("\n  Dummy checksum: %.6e (for compiler optimization prevention)\n", dummy_2);
+            
             // Calcola 90% percentile per questa combinazione
             double p90_par = calculate_percentile_90(times_par, NRUNS);
             double speedup = p90_seq / p90_par;
