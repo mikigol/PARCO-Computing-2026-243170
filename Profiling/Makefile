@@ -114,7 +114,6 @@ help:
 	@echo "  L3 miss rate alto (>40%)    → Memory-bound, bottleneck RAM"
 	@echo "  Speedup < thread count      → Contention memoria, non CPU-bound"
 	@echo ""
-Copia in Profiling/Makefile! 🎯
 
 
 
