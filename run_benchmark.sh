@@ -19,12 +19,12 @@ OPT_FLAGS=("-O0" "-O1" "-O2" "-O3" "-Ofast")
 SCHEDULES=("static" "dynamic" "guided")
 CHUNKSIZES=(1 10 100 1000)
 THREADS=(1 2 4 8 16 32 64)
-NRUNS=10  # Numero di run per ogni combinazione (timing E perf)
+NRUNS=10  # Numero di run per ogni combinazione
 
 # ==========================
 # INIZIALIZZAZIONE CSV
 # ==========================
-echo "matrix,mode,opt_level,schedule,chunk_size,num_threads,run_number,perf_mode,metric_type,result_value,l1_loads,l1_misses,miss_rate_percent,llc_misses" > "$OUTPUT"
+echo "matrix,mode,opt_level,schedule,chunk_size,num_threads,run_number,perf_mode,metric_type,result_value,l1_loads,l1_misses,l1_miss_rate_percent,llc_loads,llc_misses,llc_miss_rate_percent" > "$OUTPUT"
 
 # ==========================
 # FUNZIONE: Esegui e registra
@@ -43,8 +43,10 @@ run_test() {
     local result_value=""
     local l1_loads=""
     local l1_misses=""
-    local miss_rate=""
+    local l1_miss_rate=""
+    local llc_loads=""
     local llc_misses=""
+    local llc_miss_rate=""
 
     if [ "$use_perf" = "yes" ]; then
         # Con perf: 10 run anche per perf
@@ -57,25 +59,49 @@ run_test() {
             perf_output=$(perf stat -e L1-dcache-loads,L1-dcache-load-misses,LLC-loads,LLC-load-misses \
                      ${EXEC} "$matrix_path" "$threads" "$schedule" "$chunk" 2>&1)
             
-            # Estrai i valori singoli
+            # DEBUG: Stampa output grezzo (solo prima run)
+            if [ $run -eq 1 ]; then
+                echo ""
+                echo "  [DEBUG] Perf output (first run):"
+                echo "$perf_output" | grep -E "(L1-dcache|LLC)" | head -10
+                echo ""
+            fi
+            
+            # Estrai L1-dcache-loads e L1-dcache-load-misses
             l1_loads=$(echo "$perf_output" | grep "L1-dcache-loads" | grep -v "load-misses" | awk '{print $1}' | sed 's/,//g')
             l1_misses=$(echo "$perf_output" | grep "L1-dcache-load-misses" | awk '{print $1}' | sed 's/,//g')
+            
+            # Estrai LLC-loads e LLC-load-misses
+            llc_loads=$(echo "$perf_output" | grep "LLC-loads" | grep -v "load-misses" | awk '{print $1}' | sed 's/,//g')
             llc_misses=$(echo "$perf_output" | grep "LLC-load-misses" | awk '{print $1}' | sed 's/,//g')
             
-            # Calcola miss rate (%)
-            if [ ! -z "$l1_loads" ] && [ "$l1_loads" -gt 0 ]; then
-                miss_rate=$(echo "$l1_misses $l1_loads" | awk '{printf "%.4f", ($1 * 100) / $2}')
+            # DEBUG: Stampa valori estratti (solo prima run)
+            if [ $run -eq 1 ]; then
+                echo "  [DEBUG] Estratti: l1_loads='$l1_loads' l1_misses='$l1_misses' llc_loads='$llc_loads' llc_misses='$llc_misses'"
+                echo ""
+            fi
+            
+            # Calcola L1 miss rate (%) - VERSIONE ROBUSTA
+            if [ ! -z "$l1_loads" ] && [ ! -z "$l1_misses" ] && [ "$l1_loads" -ne 0 ]; then
+                l1_miss_rate=$(awk "BEGIN {printf \"%.4f\", ($l1_misses * 100) / $l1_loads}")
             else
-                miss_rate="0.0000"
+                l1_miss_rate="0.0000"
+            fi
+            
+            # Calcola LLC miss rate (%) - VERSIONE ROBUSTA
+            if [ ! -z "$llc_loads" ] && [ ! -z "$llc_misses" ] && [ "$llc_loads" -ne 0 ]; then
+                llc_miss_rate=$(awk "BEGIN {printf \"%.4f\", ($llc_misses * 100) / $llc_loads}")
+            else
+                llc_miss_rate="0.0000"
             fi
             
             result_value="${l1_misses}"
             
             # Salva questa run nel CSV
-            echo "${matrix},${mode},${opt},${schedule},${chunk},${threads},${run},${perf_mode},${metric_type},${result_value},${l1_loads},${l1_misses},${miss_rate},${llc_misses}" >> "$OUTPUT"
+            echo "${matrix},${mode},${opt},${schedule},${chunk},${threads},${run},${perf_mode},${metric_type},${result_value},${l1_loads},${l1_misses},${l1_miss_rate},${llc_loads},${llc_misses},${llc_miss_rate}" >> "$OUTPUT"
             
             # Stampa inline
-            printf "R%d:L1miss=%s(%.2f%%) " $run $l1_misses $miss_rate
+            printf "R%d:L1=%s/%s(%.2f%%) LLC=%s/%s(%.2f%%) " $run $l1_misses $l1_loads $l1_miss_rate $llc_misses $llc_loads $llc_miss_rate
         done
         
         echo ""  # A capo dopo tutte le run perf
@@ -84,8 +110,10 @@ run_test() {
         # Senza perf: 10 run per timing
         l1_loads="N/A"
         l1_misses="N/A"
-        miss_rate="N/A"
+        l1_miss_rate="N/A"
+        llc_loads="N/A"
         llc_misses="N/A"
+        llc_miss_rate="N/A"
         perf_mode="no"
         metric_type="time_sec"
         
@@ -99,12 +127,12 @@ run_test() {
                 result_value="$time_val"
                 
                 # Salva questa run nel CSV
-                echo "${matrix},${mode},${opt},${schedule},${chunk},${threads},${run},${perf_mode},${metric_type},${result_value},${l1_loads},${l1_misses},${miss_rate},${llc_misses}" >> "$OUTPUT"
+                echo "${matrix},${mode},${opt},${schedule},${chunk},${threads},${run},${perf_mode},${metric_type},${result_value},${l1_loads},${l1_misses},${l1_miss_rate},${llc_loads},${llc_misses},${llc_miss_rate}" >> "$OUTPUT"
                 
                 # Stampa inline
                 printf "R%d:%.6f " $run $time_val
             else
-                echo "${matrix},${mode},${opt},${schedule},${chunk},${threads},${run},${perf_mode},${metric_type},ERROR,${l1_loads},${l1_misses},${miss_rate},${llc_misses}" >> "$OUTPUT"
+                echo "${matrix},${mode},${opt},${schedule},${chunk},${threads},${run},${perf_mode},${metric_type},ERROR,${l1_loads},${l1_misses},${l1_miss_rate},${llc_loads},${llc_misses},${llc_miss_rate}" >> "$OUTPUT"
                 printf "R%d:ERROR " $run
             fi
         done
@@ -223,7 +251,8 @@ head -26 "$OUTPUT" | column -t -s,
 echo ""
 
 echo "Note:"
-echo "  - Ogni combinazione timing: ${NRUNS} righe (una per run)"
-echo "  - Ogni combinazione perf: ${NRUNS} righe (una per run)"
-echo "  - Totale righe per combinazione: $((NRUNS * 2)) righe"
+echo "  - Ogni combinazione timing: ${NRUNS} righe"
+echo "  - Ogni combinazione perf: ${NRUNS} righe con L1 e LLC metrics"
+echo "  - L1 miss rate = (L1-misses / L1-loads) × 100"
+echo "  - LLC miss rate = (LLC-misses / LLC-loads) × 100"
 echo ""
