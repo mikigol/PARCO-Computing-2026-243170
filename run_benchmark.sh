@@ -14,8 +14,8 @@ CFLAGS_BASE="-Wall -g -fopenmp -std=c99 -IHeader"
 LIBS="-lm"
 
 # Matrici da testare (dentro Matrix/)
-MATRICES=("matrix1.mtx" "matrix2.mtx" "matrix3.mtx" "matrix4.mtx" "matrix5.mtx")
-OPT_FLAGS=("" "-O1" "-O2" "-O3" "-Ofast")
+MATRICES=("bcsstk16.mtx","bcsstk18.mtx","bcsst mtx k25..mtx")
+OPT_FLAGS=("" "-O1" "-O2" "-O3" )
 SCHEDULES=("static" "dynamic" "guided")
 CHUNKSIZES=(1 10 100 1000)
 THREADS=(1 2 4 8 16 32 64)
