@@ -1,9 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#ifdef _OPENMP
 #include <omp.h>
-#endif
 #include "matrix_io.h"
 #include "csr.h"
 #include "my_timer.h"
