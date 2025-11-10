@@ -27,7 +27,6 @@ void csr_spmv_parallel_schedule(Matrix *mat, double *x, double *y,
                 }
             }
             break;
-            
         case 1:  // dynamic
             #pragma omp parallel for num_threads(num_threads) schedule(dynamic, chunk_size)
             for(int i = 0; i < mat->M; i++) {
@@ -36,7 +35,6 @@ void csr_spmv_parallel_schedule(Matrix *mat, double *x, double *y,
                 }
             }
             break;
-            
         case 2:  // guided
             #pragma omp parallel for num_threads(num_threads) schedule(guided, chunk_size)
             for(int i = 0; i < mat->M; i++) {
@@ -47,5 +45,7 @@ void csr_spmv_parallel_schedule(Matrix *mat, double *x, double *y,
             break;
     }
 }
+
+
 
 
