@@ -1,32 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <math.h>
 #ifdef _OPENMP
 #include <omp.h>
 #endif
 #include "matrix_io.h"
 #include "csr.h"
 #include "my_timer.h"
-
-#define NRUNS 10
-
-int compare_double(const void *a, const void *b) {
-    double diff = (*(double*)a - *(double*)b);
-    return (diff > 0) - (diff < 0);
-}
-
-double calculate_percentile_90(double *times, int n) {
-    qsort(times, n, sizeof(double), compare_double);
-    double index = 0.90 * (n - 1);
-    int lower = (int)floor(index);
-    int upper = (int)ceil(index);
-
-    if (lower == upper) return times[lower];
-
-    double weight = index - lower;
-    return times[lower] * (1 - weight) + times[upper] * weight;
-}
 
 int main(int argc, char *argv[]) {
     // Modalità bash: args = <matrix> <threads> <schedule> <chunk_size>
@@ -83,47 +63,37 @@ int main(int argc, char *argv[]) {
         x[i] = 1.0;
     }
 
-double times[NRUNS];
-double dummy = 0.0;
+    double dummy = 0.0;
+    double start, stop, elapsed_time;
 
-if (is_sequential) {
-    for(int run = 0; run < NRUNS; run++) {
-        double start, stop;
-        memset(y, 0, mat->M * sizeof(double));
-        
+    // Azzera il vettore risultato
+    memset(y, 0, mat->M * sizeof(double));
+
+    // Esegui SpMV (sequenziale o parallelo) e misura il tempo
+    if (is_sequential) {
         GET_TIME(start);
         csr_spmv_seq(mat, x, y);
         GET_TIME(stop);
-        
-        times[run] = stop - start;
-        for(int i = 0; i < mat->M; i++) dummy += y[i];
-    }
-} else {
-    for(int run = 0; run < NRUNS; run++) {
-        double start, stop;
-        
-        memset(y, 0, mat->M * sizeof(double));
-        
+    } else {
         GET_TIME(start);
         csr_spmv_parallel_schedule(mat, x, y, num_threads, schedule, chunk_size);
         GET_TIME(stop);
-        
-        times[run] = stop - start;
-        for(int i = 0; i < mat->M; i++) dummy += y[i];
     }
-}
 
+    // Calcola tempo trascorso
+    elapsed_time = stop - start;
 
-    // Calcola 90% percentile
-    double p90 = calculate_percentile_90(times, NRUNS);
+    // Usa dummy per evitare warning
+    for(int i = 0; i < mat->M; i++) {
+        dummy += y[i];
+    }
 
     // OUTPUT PER BASH SCRIPT: stampa SOLO il tempo (in secondi)
-    // Lo script bash si aspetta solo un numero
-    printf("%.6f\n", p90);
+    printf("%.6f\n", elapsed_time);
 
-    // Scrivi dettagli su stderr per debug (opzionale, non interferisce con bash)
-    fprintf(stderr, "[DEBUG] P90: %.6f sec (%.4f ms), Dummy: %.6e\n",
-            p90, p90 * 1000, dummy);
+    // Scrivi dettagli su stderr per debug (opzionale)
+    fprintf(stderr, "[DEBUG] Time: %.6f sec (%.4f ms), Dummy: %.6e\n",
+            elapsed_time, elapsed_time * 1000, dummy);
 
     free(x);
     free(y);
