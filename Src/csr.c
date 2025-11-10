@@ -6,9 +6,9 @@
 //
 
 
-#ifdef _OPENMP
+
 #include <omp.h>
-#endif
+
 #include "csr.h"
 
 void csr_spmv_seq(Matrix *mat, double *x, double *y) {
