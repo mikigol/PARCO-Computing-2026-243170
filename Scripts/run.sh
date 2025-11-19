@@ -16,11 +16,9 @@ CHUNKSIZES=(1 10 100 1000)
 THREADS=(1 2 4 8 16 32)
 NRUNS=5
 
-# Inizializza i file CSV
 echo "matrix,mode,schedule,chunk_size,num_threads,90percentile" > "$TIME_OUTPUT"
 echo "matrix,mode,schedule,chunk_size,num_threads,run_number,l1_loads,l1_misses,l1_miss_rate_percent,llc_loads,llc_misses,llc_miss_rate_percent" > "$PERF_OUTPUT"
 
-# Compila una sola volta all'inizio
 echo "════════ COMPILAZIONE ══════"
 echo "[Compilazione modalità time]"
 gcc -O3 ${CFLAGS_BASE} -o ./matvec $SRC 2>/dev/null
@@ -59,7 +57,6 @@ for matrix in "${MATRICES[@]}"; do
     echo -n "  → [perf runs] "
     for run in $(seq 1 $NRUNS); do
         if [ "$run" -eq 1 ]; then
-            # Prima iterazione: mostra l'output completo di perf
             echo ""
             echo "    [Run 1 - Output completo perf]"
             perf_output=$(perf stat -e L1-dcache-loads,L1-dcache-load-misses,LLC-loads,LLC-load-misses \
@@ -71,7 +68,6 @@ for matrix in "${MATRICES[@]}"; do
             llc_loads=$(echo "$perf_output" | grep "LLC-loads" | grep -v "load-misses" | awk '{print $1}' | sed 's/,//g')
             llc_misses=$(echo "$perf_output" | grep "LLC-load-misses" | awk '{print $1}' | sed 's/,//g')
         else
-            # Iterazioni successive: silenzioso (ridirigi stdout e stderr)
             perf_output=$(perf stat -e L1-dcache-loads,L1-dcache-load-misses,LLC-loads,LLC-load-misses \
                 ./matvec_perf "$matrix_path" 1 none none 2>&1)
             
@@ -124,7 +120,6 @@ for matrix in "${MATRICES[@]}"; do
                 # Test con perf (10 esecuzioni separate)
                 for run in $(seq 1 $NRUNS); do
                     if [ "$run" -eq 1 ]; then
-                        # Prima iterazione: mostra output completo
                         echo ""
                         echo "    [Run 1 - Output completo perf]"
                         perf_output=$(perf stat -e L1-dcache-loads,L1-dcache-load-misses,LLC-loads,LLC-load-misses \
@@ -136,7 +131,6 @@ for matrix in "${MATRICES[@]}"; do
                         llc_loads=$(echo "$perf_output" | grep "LLC-loads" | grep -v "load-misses" | awk '{print $1}' | sed 's/,//g')
                         llc_misses=$(echo "$perf_output" | grep "LLC-load-misses" | awk '{print $1}' | sed 's/,//g')
                     else
-                        # Iterazioni successive: silenzioso (ridirigi stdout e stderr)
                         perf_output=$(perf stat -e L1-dcache-loads,L1-dcache-load-misses,LLC-loads,LLC-load-misses \
                             ./matvec_perf "$matrix_path" "$threads" "$schedule" "$chunk" 2>&1)
                         
