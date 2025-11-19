@@ -351,7 +351,7 @@ NRUNS=10  # 10 iterations per execution for time measurement
 **csr.c / csr.h** - CSR Matrix Operations
 - CSR matrix-vector multiplication kernel (core computation)
 - Loop parallelization with OpenMP `#pragma omp parallel for num_threads(num_threads) ` 
-- Configurable scheduling and chunk sizes
+- Configurable scheduling and chunk sizes  ex. `#pragma omp parallel for num_threads(num_threads) schedule(static, chunk_size) ` 
 - Cache-aware implementation
 
 **mmio.c / mmio.h** - Matrix Market I/O (Reference Implementation)
