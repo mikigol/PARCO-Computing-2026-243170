@@ -242,8 +242,8 @@ find /usr -name omp.h 2>/dev/null
 gcc -v
 
 # Try alternative compilation (without optimization)
-gcc -g -fopenmp -std=c99 -I./Header -o matvec \
-    ./Src/main.c ./Src/matrix_io.c ./Src/csr.c ./Src/mmio.c -lm
+gcc -g -fopenmp -std=c99 -I../Header -o ./matvec \
+    ../Src/main.c ../Src/matrix_io.c ../Src/csr.c ../Src/mmio.c -lm
 ```
 
 ---
@@ -823,7 +823,7 @@ Focus on one matrix with different configurations:
 
 ```bash
 # Compile
-gcc -O3 -Wall -g -fopenmp -std=c99 -I../Header -o matvec \
+gcc -O3 -Wall -g -fopenmp -std=c99 -I../Header -o ./matvec \
     ../Src/main.c ../Src/matrix_io.c ../Src/csr.c ../Src/mmio.c -lm
 
 # Test different schedules with 16 threads
