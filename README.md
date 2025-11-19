@@ -88,11 +88,11 @@ Based on UNITN HPC cluster execution (Intel Xeon Gold 6252N @ 2.3 GHz, 96 logica
 
 | Matrix | Best Schedule | Best Chunk | Best Threads | Time (s) | Speedup |
 |--------|---------------|-----------|--------------|----------|---------|
-| bcsstk14 | static | 1 | 8 | 0.000145 | 1.88× |
-| FEM_3D_thermal2 | static | 100 | 32 | 0.891 | 5.21× |
-| pdb1HYS | guided | 100 | 16 | 0.268 | 4.12× |
-| rajat24 | static | 100 | 16 | 0.142 | 3.89× |
-| torso1 | guided | 1000 | 32 | 0.00535 | 5.98× |
+| bcsstk14 | guided | 1 | 2 | 0.000062| 1.10× |
+| FEM_3D_thermal2 | static | 1000 | 16 | 0.000971 | 4.79× |
+| pdb1HYS | static | 1000 | 16 | 0.001094 | 5.33× |
+| rajat24 | dynamic | 1000 | 16 | 0.000868 | 3.47× |
+| torso1 | static | 100 | 16 | 0.002169 | 5.98× |
 
 **System:** Intel Xeon Gold 6252N @ 2.3 GHz (96 logical CPUs, 4 sockets, L3 cache: 36 MB per socket)
 
