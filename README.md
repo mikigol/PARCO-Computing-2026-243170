@@ -28,11 +28,11 @@ This project performs a comprehensive benchmark of sparse matrix-vector multipli
 - Automatic visualization and analysis scripts (4 comprehensive graphs + statistics)
 
 **Tested Matrices:**
-- **bcsstk14** (1,806×1,806, 32,630 nnz) - Small, 
-- **FEM_3D_thermal2** (147,900×147,900, 3,489,300 nnz) - Medium,
-- **pdb1HYS** (36,417×36,417, 2,190,591 nnz) - Medium, ì
-- **rajat24** (358,172×358,172, 1,948,235 nnz) - Large, 
-- **torso1** (116,158×116,158, 8,516,500 nnz) - Large, 
+- **bcsstk14** (1,806×1,806, 32,630 nnz) - Small
+- **FEM_3D_thermal2** (147,900×147,900, 3,489,300 nnz) - Medium
+- **pdb1HYS** (36,417×36,417, 2,190,591 nnz) - Medium
+- **rajat24** (358,172×358,172, 1,948,235 nnz) - Large
+- **torso1** (116,158×116,158, 8,516,500 nnz) - Large
 ---
 - FOR ALL THE CASE THE COMPILATION AND THE RUNNING MUST BE DONE INSIDE THE DIRECTORY Script
 
