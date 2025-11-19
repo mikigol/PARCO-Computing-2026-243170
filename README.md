@@ -766,11 +766,11 @@ Perfect for verifying everything works:
 
 ```bash
 # Compile
-gcc -O3 -Wall -g -fopenmp -std=c99 -I./Header -o ./matvec \
-    ./Src/main.c ./Src/matrix_io.c ./Src/csr.c ./Src/mmio.c -lm
+gcc -O3 -Wall -g -fopenmp -std=c99 -I../Header -o ./matvec \
+    ../Src/main.c ../Src/matrix_io.c ../Src/csr.c ../Src/mmio.c -lm
 
 # Test single configuration
-./matvec ./Matrix/bcsstk14.mtx 8 static 100
+./matvec ../Matrix/bcsstk14.mtx 8 static 100
 
 # Expected output: ~0.000150 (seconds)
 ```
