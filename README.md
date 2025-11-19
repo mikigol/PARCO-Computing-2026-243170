@@ -556,9 +556,27 @@ print(f"  Speedup: {speedup:.2f}x")
 **Cluster:** UNITN HPC
 **Scheduler:** PBS (Portable Batch System)
 **Nodes:** 32 CPU-only nodes (4 Xeon Gold 6252N processors per node)
-**Login:** `hpc-head-n1.unitn.it`
+**Login:** `ssh username@hpc.unitn.it`
 
-### Submission
+### Manual execution
+To run your code manually on the UNITN HPC cluster:
+
+### 1. Load Required Modules
+
+After logging in, load the necessary environment modules :
+```bash
+module load gcc91
+module load perf
+```
+### 2. Create an Interactive Session
+Request an interactive session using PBS with the `-I` flag (capital i)
+```bash
+qsub -I -q queue Name -l select =1: ncpus =64:
+mem =1 mb : walltime = 01 : 00 :00
+```
+You can adjust the number of CPUs and memory based on your requirements; also you can choose a specific queue.
+The interactive session provides direct access to compute nodes, making it ideal for testing and debugging.
+###  Full Submission
 
 ```bash
 cd Scripts
