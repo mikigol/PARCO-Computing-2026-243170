@@ -574,8 +574,9 @@ Request an interactive session using PBS with the `-I` flag (capital i)
 qsub -I -q queue Name -l select =1: ncpus =64:
 mem =1 mb : walltime = 01 : 00 :00
 ```
-You can adjust the number of CPUs and memory based on your requirements; also you can choose a specific queue.
-The interactive session provides direct access to compute nodes, making it ideal for testing and debugging.
+-You can adjust the number of CPUs and memory based on your requirements; also you can choose a specific queue.
+-The interactive session provides direct access to compute nodes, making it ideal for testing and debugging.
+-FOR THE COMPILATION AND EXECUTION IS THE SAME AS FOR THE LOCAL
 ###  Full Submission
 
 ```bash
