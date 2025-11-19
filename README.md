@@ -65,7 +65,7 @@ qsub benchmark.pbs
 Analisi dati
 python3 lettura_dati.py
 
-text
+
 
 ---
 
@@ -102,7 +102,7 @@ Based on UNITN HPC cluster (Intel Xeon Gold 6252N @ 2.3 GHz):
 git clone <repository-url>
 cd PARCO-Computing-2026-243170
 
-text
+
 
 **Struttura del progetto:**
 
@@ -118,7 +118,7 @@ PARCO-Computing-2026-243170/
 │ └── Plots/
 └── README.md
 
-text
+
 
 ---
 
@@ -129,7 +129,7 @@ text
 gcc -O3 -Wall -g -fopenmp -std=c99 -I../Header -o ../matvec
 ../Src/main.c ../Src/matrix_io.c ../Src/csr.c ../Src/mmio.c -lm
 
-text
+
 
 **Flag di compilazione:**
 - `-O3`: Ottimizzazione massima
@@ -146,7 +146,7 @@ text
 
 ../matvec <matrix_file> <num_threads> <schedule> <chunk_size>
 
-text
+
 
 **Parametri:**
 - `matrix_file`: Path al file .mtx
@@ -165,13 +165,13 @@ Parallelo static
 Parallelo guided
 ../matvec ../Matrix/torso1.mtx 32 guided 1000
 
-text
+
 
 **Benchmark completo:**
 
 ./run.sh
 
-text
+
 
 Esegue 365 configurazioni totali (5 matrici × 73 config ciascuna).
 
@@ -207,7 +207,7 @@ rm -rf bcsstk14 bcsstk14.tar.gz
 
 cd ..
 
-text
+
 
 **URL matrici:**
 - bcsstk14: https://sparse.tamu.edu/mat/Oberwolfach/bcsstk14.tar.gz
@@ -229,7 +229,7 @@ text
 pip3 install pandas numpy matplotlib
 python3 lettura_dati.py
 
-text
+
 
 **Output grafici in `../Results/Plots/`:**
 1. `confronto_schedule_multithread.png`: Confronto schedule per thread count
@@ -240,7 +240,7 @@ text
 **Calcolo GFLOPS:**
 GFLOPS = (2 × nnz) / tempo / 1e9
 
-text
+
 
 ---
 
@@ -251,14 +251,14 @@ text
 cd Scripts
 qsub benchmark.pbs
 
-text
+
 
 **Monitoraggio:**
 
 qstat -u $USER # Stato job
 tail -f ../Results/benchmark.out # Output real-time
 
-text
+
 
 **PBS config (`benchmark.pbs`):**
 #PBS -N matvec_benchmark
@@ -266,7 +266,7 @@ text
 #PBS -l walltime=6:00:00
 #PBS -l select=1:ncpus=32:mem=16gb
 
-text
+
 
 ---
 
@@ -281,7 +281,7 @@ sudo apt-get install libomp-dev # Ubuntu
 sudo yum install libomp-devel # CentOS
 brew install libomp # macOS
 
-text
+
 
 **Segmentation fault:**
 - Verifica che la matrice esista: `ls -la ../Matrix/*.mtx`
@@ -290,7 +290,7 @@ text
 **Python moduli mancanti:**
 pip3 install pandas numpy matplotlib
 
-text
+
 
 ---
 
@@ -301,14 +301,14 @@ cd Scripts
 gcc -O3 -Wall -g -fopenmp -std=c99 -I../Header -o ../matvec ../Src/main.c ../Src/matrix_io.c ../Src/csr.c ../Src/mmio.c -lm
 ../matvec ../Matrix/bcsstk14.mtx 8 static 100
 
-text
+
 
 **Benchmark completo (4 ore):**
 cd Scripts
 ./run.sh
 python3 lettura_dati.py
 
-text
+
 
 **Cluster (6 ore):**
 cd Scripts
@@ -317,7 +317,7 @@ qsub benchmark.pbs
 Dopo completamento
 python3 lettura_dati.py
 
-text
+
 
 ---
 
@@ -339,7 +339,7 @@ Configurations: 365 total (1 seq + 72 parallel per matrix)
 Best Speedup: 5.98× (torso1, 32 threads, guided, chunk=1000)
 Average Speedup: 4.2×
 
-text
+
 
 ---
 
@@ -358,7 +358,7 @@ institution={University of Trento},
 url={https://github.com/mikigol/PARCO-Computing-2026-243170}
 }
 
-text
+
 
 ---
 
