@@ -263,7 +263,7 @@ The program accepts the following arguments:
 | Parameter | Type | Values | Default | Meaning |
 |-----------|------|--------|---------|---------|
 | `matrix_file` | string | Path to `.mtx` file | - | Sparse matrix in Matrix Market format |
-| `num_threads` | int | 1-96 | 1 | Number of OpenMP threads to use |
+| `num_threads` | int | 1-32 | 1 | Number of OpenMP threads to use |
 | `schedule` | string | static, dynamic, guided, none | none | OpenMP scheduling strategy |
 | `chunk_size` | int | 1, 10, 100, 1000 | ignored if schedule=none | Chunk size for loop distribution |
 
@@ -339,7 +339,6 @@ NRUNS=10  # 10 iterations per execution for time measurement
 **main.c** - Main entry point
 - Command-line argument parsing (matrix file, threads, schedule, chunk)
 - Matrix loading and conversion to CSR format
-- OpenMP parallelization wrapper using `omp_set_num_threads()` and schedule directives
 - Timing measurements: 10 iterations, reports 90th percentile
 - Optional perf profiling mode (with PERF_MODE flag)
 
@@ -351,7 +350,7 @@ NRUNS=10  # 10 iterations per execution for time measurement
 
 **csr.c / csr.h** - CSR Matrix Operations
 - CSR matrix-vector multiplication kernel (core computation)
-- Loop parallelization with OpenMP `#pragma omp parallel for` with schedule control
+- Loop parallelization with OpenMP `#pragma omp parallel for num_threads(num_threads) ` 
 - Configurable scheduling and chunk sizes
 - Cache-aware implementation
 
