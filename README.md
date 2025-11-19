@@ -404,11 +404,11 @@ cd ..
 ```
 
 **Matrix URLs for Reference:**
-- bcsstk14: https://sparse.tamu.edu/mat/Oberwolfach/bcsstk14.tar.gz
-- FEM_3D_thermal2: https://sparse.tamu.edu/mat/FEM/FEM_3D_thermal2.tar.gz
-- pdb1HYS: https://sparse.tamu.edu/mat/Protein/pdb1HYS.tar.gz
-- rajat24: https://sparse.tamu.edu/mat/Rajat/rajat24.tar.gz
-- torso1: https://sparse.tamu.edu/mat/GHS_psdef/torso1.tar.gz
+- bcsstk14: https://sparse.tamu.edu/mat/Oberwolfach/bcsstk14
+- FEM_3D_thermal2: https://sparse.tamu.edu/mat/FEM/FEM_3D_thermal2
+- pdb1HYS: https://sparse.tamu.edu/mat/Protein/pdb1HYS
+- rajat24: https://sparse.tamu.edu/mat/Rajat/rajat24
+- torso1: https://sparse.tamu.edu/mat/GHS_psdef/torso1
 
 ### Verify Matrix Files
 
