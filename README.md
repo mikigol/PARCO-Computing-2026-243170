@@ -28,11 +28,11 @@ This project performs a comprehensive benchmark of sparse matrix-vector multipli
 - Automatic visualization and analysis scripts (4 comprehensive graphs + statistics)
 
 **Tested Matrices:**
-- **bcsstk14** (1,806×1,806, 32,630 nnz) - Small, regular structure
-- **FEM_3D_thermal2** (147,900×147,900, 3,489,300 nnz) - Medium, FEM application
-- **pdb1HYS** (36,417×36,417, 2,190,591 nnz) - Medium, protein structure
-- **rajat24** (358,172×358,172, 1,948,235 nnz) - Large, irregular structure
-- **torso1** (116,158×116,158, 8,516,500 nnz) - Large, dense structure
+- **bcsstk14** (1,806×1,806, 32,630 nnz) - Small, 
+- **FEM_3D_thermal2** (147,900×147,900, 3,489,300 nnz) - Medium,
+- **pdb1HYS** (36,417×36,417, 2,190,591 nnz) - Medium, ì
+- **rajat24** (358,172×358,172, 1,948,235 nnz) - Large, 
+- **torso1** (116,158×116,158, 8,516,500 nnz) - Large, 
 ---
 - FOR ALL THE CASE THE COMPILATION AND THE RUNNING MUST BE DONE INSIDE THE DIRECTORY Script
 
@@ -389,7 +389,7 @@ The `Matrix/` directory should contain the `.mtx` files. Due to size constraints
 cd Matrix/
 
 # Download
-wget https://sparse.tamu.edu/mat/Oberwolfach/bcsstk14.tar.gz
+wget https://sparse.tamu.edu/HB/bcsstk14.tar.gz
 
 # Extract
 tar -xzf bcsstk14.tar.gz
@@ -404,11 +404,11 @@ cd ..
 ```
 
 **Matrix URLs for Reference:**
-- bcsstk14: https://sparse.tamu.edu/mat/Oberwolfach/bcsstk14
-- FEM_3D_thermal2: https://sparse.tamu.edu/mat/FEM/FEM_3D_thermal2
-- pdb1HYS: https://sparse.tamu.edu/mat/Protein/pdb1HYS
-- rajat24: https://sparse.tamu.edu/mat/Rajat/rajat24
-- torso1: https://sparse.tamu.edu/mat/GHS_psdef/torso1
+- bcsstk14: https://sparse.tamu.edu/HB/bcsstk14
+- FEM_3D_thermal2: https://sparse.tamu.edu/Botonakis/FEM_3D_thermal2
+- pdb1HYS: https://sparse.tamu.edu/Williams/pdb1HYS
+- rajat24: https://sparse.tamu.edu/Rajat/rajat24
+- torso1: https://sparse.tamu.edu/Norris/torso1
 
 ### Verify Matrix Files
 
