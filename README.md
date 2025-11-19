@@ -33,7 +33,7 @@ This project performs a comprehensive benchmark of sparse matrix-vector multipli
 - **pdb1HYS** (36,417×36,417, 2,190,591 nnz) - Medium, protein structure
 - **rajat24** (358,172×358,172, 1,948,235 nnz) - Large, irregular structure
 - **torso1** (116,158×116,158, 8,516,500 nnz) - Large, dense structure
-FOR ALL THE CASE; THE COMPILATION AND THE RUNNING MUST BE DONE INSIDE THE DIRECTORY Scripts
+- FOR ALL THE CASE THE COMPILATION AND THE RUNNING MUST BE DONE INSIDE THE DIRECTORY Scripts
 ---
 
 ## Quick Start
