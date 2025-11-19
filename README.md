@@ -688,11 +688,19 @@ brew install libomp
 
 **Error: `-fopenmp` not recognized**
 ```bash
-# Update GCC (must be 4.9 or newer)
+# Update GCC 
 gcc --version
 
-# Or use alternative compiler
-clang -fopenmp -O3 -std=c99 -I./Header ...
+# Install GCC with  OpenMP,  GCC by  default on  macOS don't  support  OpenMP.
+brew install gcc
+
+# Verify version installed 
+gcc-15 --version  # oppure gcc-14, gcc-13, ecc.
+
+# Compiled with gcc-15
+gcc-15 -O3 -std=c99 -fopenmp -I../Header -o ./matvec \
+    ../Src/main.c ../Src/matrix_io.c ../Src/csr.c ../Src/mmio.c -lm
+
 ```
 
 ### Runtime Issues
@@ -705,15 +713,7 @@ clang -fopenmp -O3 -std=c99 -I./Header ...
 **Error: `Too many open files`**
 - Increase file descriptor limit: `ulimit -n 4096`
 
-**Error: OpenMP threads not being used**
-```bash
-# Verify thread count in output
-./matvec ./Matrix/torso1.mtx 8 static 100
 
-# Add debugging
-export OMP_NUM_THREADS=8
-./matvec ./Matrix/torso1.mtx 8 static 100
-```
 
 ### Cluster Issues
 
