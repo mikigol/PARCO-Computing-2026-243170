@@ -34,7 +34,7 @@ This project performs a comprehensive benchmark of sparse matrix-vector multipli
 - **rajat24** (358,172×358,172, 1,948,235 nnz) - Large
 - **torso1** (116,158×116,158, 8,516,500 nnz) - Large
 ---
-- FOR ALL THE CASE THE COMPILATION AND THE RUNNING MUST BE DONE INSIDE THE DIRECTORY Script
+- THE COMPILATION AND THE RUNNING MUST BE DONE INSIDE THE DIRECTORY Scripts, FOR ALL THE CONFIGURATIONS BOTH LOCAL AND CLUSTER 
 
 ## Quick Start
 
