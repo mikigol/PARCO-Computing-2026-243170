@@ -209,7 +209,7 @@ gcc -O3 -Wall -g -fopenmp -std=c99 -I../Header -o ./matvec \
 - `-g`: Include debugging symbols (useful for profiling)
 - `-fopenmp`: Enable OpenMP parallelization
 - `-std=c99`: Use C99 standard
-- `-I./Header`: Include path for header files
+- `-I../Header`: Include path for header files
 - `-lm`: Link math library
 
 ### Cluster Build (with perf support)
