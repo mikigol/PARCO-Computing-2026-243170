@@ -1,0 +1,177 @@
+#!/bin/bash
+
+
+mkdir -p ../Results
+SRC="../Src/main.c ../Src/matrix_io.c ../Src/csr.c ../Src/mmio.c"
+TIME_OUTPUT="../Results/results_time.csv"
+PERF_OUTPUT="../Results/results_perf.csv"
+MATRIX_DIR="../Matrix"
+
+CC="gcc"
+CFLAGS_BASE="-Wall -g -fopenmp -std=c99 -I../Header"
+
+MATRICES=("bcsstk14.mtx" "FEM_3D_thermal2.mtx" "pdb1HYS.mtx" "rajat24.mtx" "torso1.mtx")
+SCHEDULES=("static" "dynamic" "guided")
+CHUNKSIZES=(1 10 100 1000)
+THREADS=(1 2 4 8 16 32)
+NRUNS=5
+
+# Inizializza i file CSV
+echo "matrix,mode,schedule,chunk_size,num_threads,90percentile" > "$TIME_OUTPUT"
+echo "matrix,mode,schedule,chunk_size,num_threads,run_number,l1_loads,l1_misses,l1_miss_rate_percent,llc_loads,llc_misses,llc_miss_rate_percent" > "$PERF_OUTPUT"
+
+# Compila una sola volta all'inizio
+echo "════════ COMPILAZIONE ══════"
+echo "[Compilazione modalità time]"
+gcc -O3 ${CFLAGS_BASE} -o ./matvec $SRC 2>/dev/null
+if [ $? -ne 0 ]; then
+    echo "✗ Compilazione modalità time fallita!"
+    exit 1
+fi
+echo "✓ OK"
+
+echo "[Compilazione modalità perf]"
+gcc -O3 ${CFLAGS_BASE} -DPERF_MODE -o ./matvec_perf $SRC 2>/dev/null
+if [ $? -ne 0 ]; then
+    echo "✗ Compilazione modalità perf fallita!"
+    exit 1
+fi
+echo "✓ OK"
+
+echo ""
+echo "════════ SEQUENZIALE ══════"
+for matrix in "${MATRICES[@]}"; do
+    echo "Matrix: ${matrix}"
+    matrix_path="${MATRIX_DIR}/${matrix}"
+    
+    # Test di tempo (1 sola esecuzione, il main fa già 10 iterazioni)
+    echo -n "  → [time run] "
+    time_val=$(./matvec "$matrix_path" 1 none none 2>/dev/null | grep -Eo "^[0-9]+\.[0-9]+$" | head -n1)
+    if [[ "$time_val" =~ ^[0-9]+\.[0-9]+$ ]]; then
+        echo "${matrix},sequential,none,none,1,${time_val}" >> "$TIME_OUTPUT"
+        echo "done: ${time_val}s"
+    else
+        echo "${matrix},sequential,none,none,1,ERROR" >> "$TIME_OUTPUT"
+        echo "ERROR"
+    fi
+    
+    # Test con perf (10 esecuzioni separate, ogni esecuzione fa 1 iterazione nel main)
+    echo -n "  → [perf runs] "
+    for run in $(seq 1 $NRUNS); do
+        if [ "$run" -eq 1 ]; then
+            # Prima iterazione: mostra l'output completo di perf
+            echo ""
+            echo "    [Run 1 - Output completo perf]"
+            perf_output=$(perf stat -e L1-dcache-loads,L1-dcache-load-misses,LLC-loads,LLC-load-misses \
+                ./matvec_perf "$matrix_path" 1 none none 2>&1)
+            echo "$perf_output"
+            
+            l1_loads=$(echo "$perf_output" | grep "L1-dcache-loads" | grep -v "load-misses" | awk '{print $1}' | sed 's/,//g')
+            l1_misses=$(echo "$perf_output" | grep "L1-dcache-load-misses" | awk '{print $1}' | sed 's/,//g')
+            llc_loads=$(echo "$perf_output" | grep "LLC-loads" | grep -v "load-misses" | awk '{print $1}' | sed 's/,//g')
+            llc_misses=$(echo "$perf_output" | grep "LLC-load-misses" | awk '{print $1}' | sed 's/,//g')
+        else
+            # Iterazioni successive: silenzioso (ridirigi stdout e stderr)
+            perf_output=$(perf stat -e L1-dcache-loads,L1-dcache-load-misses,LLC-loads,LLC-load-misses \
+                ./matvec_perf "$matrix_path" 1 none none 2>&1)
+            
+            l1_loads=$(echo "$perf_output" | grep "L1-dcache-loads" | grep -v "load-misses" | awk '{print $1}' | sed 's/,//g')
+            l1_misses=$(echo "$perf_output" | grep "L1-dcache-load-misses" | awk '{print $1}' | sed 's/,//g')
+            llc_loads=$(echo "$perf_output" | grep "LLC-loads" | grep -v "load-misses" | awk '{print $1}' | sed 's/,//g')
+            llc_misses=$(echo "$perf_output" | grep "LLC-load-misses" | awk '{print $1}' | sed 's/,//g')
+        fi
+        
+        if [ -n "$l1_loads" ] && [ -n "$l1_misses" ] && [ "$l1_loads" -ne 0 ]; then
+            l1_miss_rate=$(awk "BEGIN {printf \"%.4f\", ($l1_misses * 100) / $l1_loads}")
+        else
+            l1_miss_rate="0.0000"
+        fi
+        
+        if [ -n "$llc_loads" ] && [ -n "$llc_misses" ] && [ "$llc_loads" -ne 0 ]; then
+            llc_miss_rate=$(awk "BEGIN {printf \"%.4f\", ($llc_misses * 100) / $llc_loads}")
+        else
+            llc_miss_rate="0.0000"
+        fi
+        
+        echo "${matrix},sequential,none,none,1,${run},${l1_loads},${l1_misses},${l1_miss_rate},${llc_loads},${llc_misses},${llc_miss_rate}" >> "$PERF_OUTPUT"
+        
+        if [ "$run" -gt 1 ]; then
+            echo -n "R${run}:L1=${l1_misses} "
+        fi
+    done
+    echo "done"
+done
+
+echo ""
+echo "════════ PARALLELO ═══════"
+for matrix in "${MATRICES[@]}"; do
+    echo "Matrix: ${matrix}"
+    matrix_path="${MATRIX_DIR}/${matrix}"
+    
+    for schedule in "${SCHEDULES[@]}"; do
+        for chunk in "${CHUNKSIZES[@]}"; do
+            for threads in "${THREADS[@]}"; do
+                echo -n "  → [${schedule},chunk=${chunk},threads=${threads}] "
+                
+                # Test di tempo (1 sola esecuzione, il main fa già 10 iterazioni)
+                time_val=$(./matvec "$matrix_path" "$threads" "$schedule" "$chunk" 2>/dev/null | grep -Eo "^[0-9]+\.[0-9]+$" | head -n1)
+                if [[ "$time_val" =~ ^[0-9]+\.[0-9]+$ ]]; then
+                    echo "${matrix},parallel,${schedule},${chunk},${threads},${time_val}" >> "$TIME_OUTPUT"
+                else
+                    echo "${matrix},parallel,${schedule},${chunk},${threads},ERROR" >> "$TIME_OUTPUT"
+                fi
+                
+                # Test con perf (10 esecuzioni separate)
+                for run in $(seq 1 $NRUNS); do
+                    if [ "$run" -eq 1 ]; then
+                        # Prima iterazione: mostra output completo
+                        echo ""
+                        echo "    [Run 1 - Output completo perf]"
+                        perf_output=$(perf stat -e L1-dcache-loads,L1-dcache-load-misses,LLC-loads,LLC-load-misses \
+                            ./matvec_perf "$matrix_path" "$threads" "$schedule" "$chunk" 2>&1)
+                        echo "$perf_output"
+                        
+                        l1_loads=$(echo "$perf_output" | grep "L1-dcache-loads" | grep -v "load-misses" | awk '{print $1}' | sed 's/,//g')
+                        l1_misses=$(echo "$perf_output" | grep "L1-dcache-load-misses" | awk '{print $1}' | sed 's/,//g')
+                        llc_loads=$(echo "$perf_output" | grep "LLC-loads" | grep -v "load-misses" | awk '{print $1}' | sed 's/,//g')
+                        llc_misses=$(echo "$perf_output" | grep "LLC-load-misses" | awk '{print $1}' | sed 's/,//g')
+                    else
+                        # Iterazioni successive: silenzioso (ridirigi stdout e stderr)
+                        perf_output=$(perf stat -e L1-dcache-loads,L1-dcache-load-misses,LLC-loads,LLC-load-misses \
+                            ./matvec_perf "$matrix_path" "$threads" "$schedule" "$chunk" 2>&1)
+                        
+                        l1_loads=$(echo "$perf_output" | grep "L1-dcache-loads" | grep -v "load-misses" | awk '{print $1}' | sed 's/,//g')
+                        l1_misses=$(echo "$perf_output" | grep "L1-dcache-load-misses" | awk '{print $1}' | sed 's/,//g')
+                        llc_loads=$(echo "$perf_output" | grep "LLC-loads" | grep -v "load-misses" | awk '{print $1}' | sed 's/,//g')
+                        llc_misses=$(echo "$perf_output" | grep "LLC-load-misses" | awk '{print $1}' | sed 's/,//g')
+                    fi
+                    
+                    if [ -n "$l1_loads" ] && [ -n "$l1_misses" ] && [ "$l1_loads" -ne 0 ]; then
+                        l1_miss_rate=$(awk "BEGIN {printf \"%.4f\", ($l1_misses * 100) / $l1_loads}")
+                    else
+                        l1_miss_rate="0.0000"
+                    fi
+                    
+                    if [ -n "$llc_loads" ] && [ -n "$llc_misses" ] && [ "$llc_loads" -ne 0 ]; then
+                        llc_miss_rate=$(awk "BEGIN {printf \"%.4f\", ($llc_misses * 100) / $llc_loads}")
+                    else
+                        llc_miss_rate="0.0000"
+                    fi
+                    
+                    echo "${matrix},parallel,${schedule},${chunk},${threads},${run},${l1_loads},${l1_misses},${l1_miss_rate},${llc_loads},${llc_misses},${llc_miss_rate}" >> "$PERF_OUTPUT"
+                    
+                    if [ "$run" -gt 1 ]; then
+                        echo -n "R${run}:L1=${l1_misses} "
+                    fi
+                done
+                echo "done"
+            done
+        done
+    done
+done
+
+echo ""
+echo "════════════════════════════"
+echo "Benchmark completato!"
+echo "Risultati tempi: $TIME_OUTPUT"
+echo "Risultati cache miss: $PERF_OUTPUT"
