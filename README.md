@@ -169,9 +169,8 @@ PARCO-Computing-2026-243170/
 │   ├── benchmark.pbs                    # PBS cluster submission script
 │   ├── lettura_dati.py                  # Data visualization helper
 |
-├── Matrix/               # Sparse matrix files (.mtx) - NOT in git
-│   ├── .gitignore        # Ensures Matrix/ exists but *.mtx ignored
-│   └── README.md         # Instructions for matrix setup
+├── Matrix/               # Sparse matrix files (.mtx) - NOT in git│ 
+│   └── info.txt          # Instructions for matrix setup
 ├── Results/              # Benchmark output directory
 │   ├── Plots/            # Generated visualization plots
 │   ├── results_time.csv  # Timing measurements (generated)
