@@ -96,7 +96,7 @@ Based on UNITN HPC cluster execution (Intel Xeon Gold 6252N @ 2.3 GHz, 96 logica
 
 **System:** Intel Xeon Gold 6252N @ 2.3 GHz (96 logical CPUs, 4 sockets, L3 cache: 36 MB per socket)
 
-**Average Speedup:** 4.2× (across all matrices and configurations)
+
 
 ---
 
@@ -841,7 +841,6 @@ When sharing results, include:
 
 **Key Results:**
 - Best speedup: 5.98× (torso1, 16 threads, static schedule, chunk=100)
-- Average speedup: 4.2×
 - Time measurement: 90th percentile of 10 iterations
 - Cache metric: L1 and LLC miss rates from `perf` tool
 
