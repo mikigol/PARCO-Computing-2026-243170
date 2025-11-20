@@ -106,7 +106,7 @@ Based on UNITN HPC cluster execution (Intel Xeon Gold 6252N @ 2.3 GHz, 96 logica
 
 | Component | Requirement | Tested Version |
 |-----------|-------------|-----------------|
-| Compiler | GCC with OpenMP support | 4.8.5 (cluster), 11.2+ (recommended) |
+| Compiler | GCC with OpenMP support | . |
 | C Standard | C99 or later | ISO/IEC 9899:1999 |
 | Build Tool | Make or manual compilation | GNU Make 3.82+ |
 | OpenMP | Version 2.0+ | Built-in with GCC |
