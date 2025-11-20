@@ -532,7 +532,6 @@ After logging in, load the necessary environment modules :
 
 module load gcc91
 gcc () { gcc -9.1.0 " $ @ " ; }
-g ++() { g ++ -9.1.0 " $ @ " ; }
 gcc -- version
 module load perf
 ```
