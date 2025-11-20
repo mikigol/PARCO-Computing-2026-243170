@@ -681,7 +681,7 @@ gcc-15 -O3 -std=c99 -fopenmp -I../Header -o ./matvec \
 **Error: `Segmentation fault`**
 - Check matrix file exists and is readable: `ls -la Matrix/*.mtx`
 - Verify matrix format is valid Matrix Market (.mtx): `head -5 Matrix/bcsstk14.mtx`
-- Increase stack size: `ulimit -s unlimited`
+
 
 ### Cluster Issues
 
