@@ -6,6 +6,7 @@
 #PBS -l walltime=6:00:00
 #PBS -l select=1:ncpus=32:mem=16gb
 module load gcc91
+gcc () { gcc -9.1.0 " $ @ " ; }
 module load perf
 
 cd "$PBS_O_WORKDIR"
