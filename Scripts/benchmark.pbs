@@ -122,7 +122,6 @@ echo "═══ COMPILATION SETUP ═══" >> "$ARCH_INFO"
 echo "" >> "$ARCH_INFO"
 echo "Compiler: gcc" >> "$ARCH_INFO"
 echo "Base Flags: -Wall -g -fopenmp -std=c99 -IHeader" >> "$ARCH_INFO"
-echo "Libraries: -lm" >> "$ARCH_INFO"
 echo "Optimization Levels Tested: -O3" >> "$ARCH_INFO"
 echo "" >> "$ARCH_INFO"
 
