@@ -485,18 +485,11 @@ python3 lettura_dati.py
 pip3 install pandas numpy matplotlib 
 ```
 
-**Generates 11 PNG files in `Results/Plots/`:**
+**Generates 8 PNG files in `Results/Plots/`:**
 
-1. **Speedup Graphs (3 files - one per schedule type)**
-- speedup_dynamic.png, speedup_static.png, speedup_guided.png
-- 2×2 grid: one subplot per chunk size (4 chunk sizes shown
-- Each subplot shows: speedup curves for all matrices vs thread count (4, 8, 16, 32)
-- Red dashed line at y=1 indicates baseline (no speedup)
-- Metric: Speedup factor (x times faster than sequential)
-- Insight: How each schedule type performs across different chunk sizes and thread counts for each matrix
 
-2. **Strong Scaling Graphs (4 files - one per chunk size)**
-- 02_scalability_chunk_0.png through 02_scalability_chunk_3.png
+1. **Strong Scaling Graphs (4 files - one per chunk size)**
+
 - Each file has 1×3 grid: one subplot per schedule type (dynamic, static, guided)
 - Shows: how speedup scales with increasing thread count for a specific chunk size
 - Ideal scaling line included (black dashed line)
@@ -505,8 +498,7 @@ pip3 install pandas numpy matplotlib
 - Metric: Speedup vs number of threads
 - Insight: Which schedule scales best for each matrix at different chunk sizes
 
-3. **GFLOPS Performance Graphs (4 files - one per chunk size)**
-- 03_gflops_chunk_0.png through 03_gflops_chunk_3.png
+2. **GFLOPS Performance Graphs (4 files - one per chunk size)**
 - Each file has 1×3 grid: one subplot per schedule type (dynamic, static, guided)
 - Compares: sequential (1 thread), 4 threads, 8 threads, 16 threads, 32 threads
 - Color-coded bars by thread count (gray for sequential, gold→orange gradient for parallel)
