@@ -531,8 +531,6 @@ After logging in, load the necessary environment modules :
 ```bash
 
 module load gcc91
-gcc () { gcc -9.1.0 " $ @ " ; }
-gcc -- version
 module load perf
 ```
 ### 2. Create an Interactive Session
@@ -659,18 +657,7 @@ Edit `Scripts/benchmark.pbs`:
 
 ### Compilation Issues
 
-**Error: `fatal error: omp.h: No such file or directory`**
-```bash
-# Solution: Install OpenMP development package
-# Ubuntu/Debian
-sudo apt-get install libomp-dev
 
-# CentOS/RHEL
-sudo yum install libomp-devel
-
-# macOS
-brew install libomp
-```
 
 **Error: `-fopenmp` not recognized**
 ```bash
@@ -695,11 +682,6 @@ gcc-15 -O3 -std=c99 -fopenmp -I../Header -o ./matvec \
 - Check matrix file exists and is readable: `ls -la Matrix/*.mtx`
 - Verify matrix format is valid Matrix Market (.mtx): `head -5 Matrix/bcsstk14.mtx`
 - Increase stack size: `ulimit -s unlimited`
-
-**Error: `Too many open files`**
-- Increase file descriptor limit: `ulimit -n 4096`
-
-
 
 ### Cluster Issues
 
