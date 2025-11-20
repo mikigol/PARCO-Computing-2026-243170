@@ -44,7 +44,7 @@ This project performs a comprehensive benchmark of sparse matrix-vector multipli
 ```bash
 # Compile the project
 gcc -O3 -Wall -g -fopenmp -std=c99 -I../Header -o ./matvec \
-    ../Src/main.c ../Src/matrix_io.c ../Src/csr.c ../Src/mmio.c -lm
+    ../Src/main.c ../Src/matrix_io.c ../Src/csr.c ../Src/mmio.c 
 
 # Run single sequential execution
 ./matvec ../Matrix/torso1.mtx 1 none none
@@ -200,7 +200,7 @@ gcc --version  # Should show GCC 9.1+
 
 ```bash
 gcc -O3 -Wall -g -fopenmp -std=c99 -I../Header -o ./matvec \
-    ../Src/main.c ../Src/matrix_io.c ../Src/csr.c ../Src/mmio.c -lm
+    ../Src/main.c ../Src/matrix_io.c ../Src/csr.c ../Src/mmio.c
 ```
 
 **Compilation Flags Explanation:**
@@ -210,7 +210,7 @@ gcc -O3 -Wall -g -fopenmp -std=c99 -I../Header -o ./matvec \
 - `-fopenmp`: Enable OpenMP parallelization
 - `-std=c99`: Use C99 standard
 - `-I../Header`: Include path for header files
-- `-lm`: Link math library
+
 
 ### Cluster Build (with perf support)
 
@@ -219,14 +219,14 @@ The PBS script automatically compiles two versions:
 1. **Time measurement version:**
    ```bash
    gcc -O3 -Wall -g -fopenmp -std=c99 -I../Header -o ./matvec \
-       ../Src/main.c ../Src/matrix_io.c ../Src/csr.c ../Src/mmio.c -lm
+       ../Src/main.c ../Src/matrix_io.c ../Src/csr.c ../Src/mmio.c 
    ```
 
 2. **Performance profiling version (with PERF_MODE):**
    ```bash
    gcc -O3 -Wall -g -fopenmp -std=c99 -I../Header -DPERF_MODE \
        -o ./matvec_perf ../Src/main.c ../Src/matrix_io.c \
-       ../Src/csr.c ../Src/mmio.c -lm
+       ../Src/csr.c ../Src/mmio.c 
    ```
 
 ### Troubleshooting Build Issues
@@ -242,7 +242,7 @@ gcc -v
 
 # Try alternative compilation (without optimization)
 gcc -g -fopenmp -std=c99 -I../Header -o ./matvec \
-    ../Src/main.c ../Src/matrix_io.c ../Src/csr.c ../Src/mmio.c -lm
+    ../Src/main.c ../Src/matrix_io.c ../Src/csr.c ../Src/mmio.c 
 ```
 
 ---
@@ -672,7 +672,7 @@ gcc-15 --version  # oppure gcc-14, gcc-13, ecc.
 
 # Compiled with gcc-15
 gcc-15 -O3 -std=c99 -fopenmp -I../Header -o ./matvec \
-    ../Src/main.c ../Src/matrix_io.c ../Src/csr.c ../Src/mmio.c -lm
+    ../Src/main.c ../Src/matrix_io.c ../Src/csr.c ../Src/mmio.c 
 
 ```
 
@@ -734,7 +734,7 @@ Perfect for verifying everything works:
 ```bash
 # Compile
 gcc -O3 -Wall -g -fopenmp -std=c99 -I../Header -o ./matvec \
-    ../Src/main.c ../Src/matrix_io.c ../Src/csr.c ../Src/mmio.c -lm
+    ../Src/main.c ../Src/matrix_io.c ../Src/csr.c ../Src/mmio.c 
 
 # Test single configuration
 ./matvec ../Matrix/bcsstk14.mtx 8 static 100
@@ -791,7 +791,7 @@ Focus on one matrix with different configurations:
 ```bash
 # Compile
 gcc -O3 -Wall -g -fopenmp -std=c99 -I../Header -o ./matvec \
-    ../Src/main.c ../Src/matrix_io.c ../Src/csr.c ../Src/mmio.c -lm
+    ../Src/main.c ../Src/matrix_io.c ../Src/csr.c ../Src/mmio.c 
 
 # Test different schedules with 16 threads
 echo "Sequential:"
