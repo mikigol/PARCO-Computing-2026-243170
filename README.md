@@ -739,7 +739,6 @@ gcc -O3 -Wall -g -fopenmp -std=c99 -I../Header -o ./matvec \
 # Test single configuration
 ./matvec ../Matrix/bcsstk14.mtx 8 static 100
 
-# Expected output: ~0.000150 (seconds)
 ```
 
 ### Workflow 2: Full Benchmark (4 hours)
@@ -841,7 +840,7 @@ When sharing results, include:
 - Total configurations: 365 (1 sequential + 72 parallel per matrix)
 
 **Key Results:**
-- Best speedup: 5.98× (torso1, 32 threads, guided schedule, chunk=1000)
+- Best speedup: 5.98× (torso1, 16 threads, static schedule, chunk=100)
 - Average speedup: 4.2×
 - Time measurement: 90th percentile of 10 iterations
 - Cache metric: L1 and LLC miss rates from `perf` tool
