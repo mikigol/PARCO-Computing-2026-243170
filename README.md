@@ -485,7 +485,7 @@ python3 lettura_dati.py
 pip3 install pandas numpy matplotlib 
 ```
 
-**Generates 10 PNG files in `Results/Plots/`:**
+**Generates 11 PNG files in `Results/Plots/`:**
 
 1. **Speedup Graphs (3 files - one per schedule type)**
 - speedup_dynamic.png, speedup_static.png, speedup_guided.png
