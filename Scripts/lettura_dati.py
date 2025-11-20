@@ -1,139 +1,69 @@
+
 import pandas as pd
 import numpy as np 
 import matplotlib.pyplot as plt
 import os
 
-TIME_PATH = "/Users/mikelegolemi/Desktop/PARCO-Computing-2026-243170/Results/results_time.csv"
-PERF_PATH = "/Users/mikelegolemi/Desktop/PARCO-Computing-2026-243170/Results/results_perf.csv"
-PLOTS_DIR = "/Users/mikelegolemi/Desktop/PARCO-Computing-2026-243170/Results/Plots"
 
+TIME_PATH="/Users/mikelegolemi/Desktop/PARCO-Computing-2026-243170/Results/results_time.csv"
+PERF_PATH="/Users/mikelegolemi/Desktop/PARCO-Computing-2026-243170/Results/results_perf.csv"
+PLOTS_DIR="/Users/mikelegolemi/Desktop/PARCO-Computing-2026-243170/Results/Plots"
+
+
+# Creo la cartella Plots se non esiste
 os.makedirs(PLOTS_DIR, exist_ok=True)
 print(f"Cartella per i grafici: {PLOTS_DIR}")
+
 
 df_time = pd.read_csv(TIME_PATH)
 df_perf = pd.read_csv(PERF_PATH)
 
-print("="*80)
+print("\n" + "="*80)
 print("INIZIO ANALISI")
 print("="*80)
-print(f"Colonne disponibili: {df_time.columns.tolist()}")
+print(f"\nColonne disponibili: {df_time.columns.tolist()}")
 print(f"Chunk sizes disponibili: {sorted(df_time['chunk_size'].unique())}")
 print(f"Modalità disponibili: {df_time['mode'].unique()}")
 print(f"Schedule disponibili: {df_time['schedule'].unique()}")
 
-# ======================= SPEEDUP PER SCHEDULE SEPARATO =========================
+
+# ============================================================================
+# PARTE 1: PREPARAZIONE DATI
+# ============================================================================
+
+
 print("\n" + "=" * 80)
-print("PARTE 1: CALCOLO SPEEDUP PER SCHEDULE (MULTIPLE CONFIGURAZIONI)")
+print("PARTE 1: PREPARAZIONE DATI")
 print("=" * 80)
 
+
+# Filtro solo i dati paralleli con i 3 schedule di interesse
 df_parallel = df_time[df_time['mode'] == 'parallel'].copy()
 schedules = ['dynamic', 'static', 'guided']
 df_filtered = df_parallel[df_parallel['schedule'].isin(schedules)].copy()
 
+print(f"Dati paralleli disponibili: {len(df_filtered)}")
+
+# Ottengo tutte le matrici
 matrices = sorted(df_filtered['matrix'].unique())
+print(f"Matrici disponibili: {matrices}")
+
+# Thread counts da analizzare
 thread_counts_to_plot = [4, 8, 16, 32]
+
+# Chunk sizes disponibili - PRENDO SOLO QUELLI CHE ESISTONO NEI DATI
 available_chunks = sorted(df_filtered['chunk_size'].unique())
+print(f"Chunk sizes disponibili nei dati: {available_chunks}")
+
+# Se ci sono almeno 4 chunk sizes, prendo i primi 4. Altrimenti prendo tutti.
 if len(available_chunks) >= 4:
     chunk_sizes_to_compare = available_chunks[:4]
 else:
     chunk_sizes_to_compare = available_chunks
 
+print(f"Chunk sizes da visualizzare: {chunk_sizes_to_compare}")
+
 df_sequential = df_time[df_time['mode'] == 'sequential'].copy()
-df_parallel_filtered = df_parallel[df_parallel['schedule'].isin(schedules)].copy()
-
-print(f"Dati sequenziali disponibili: {len(df_sequential)}")
-print(f"Dati paralleli disponibili: {len(df_parallel_filtered)}")
-
-speedup_results = []
-
-for matrix in matrices:
-    print(f"\n{'=' * 80}")
-    print(f"MATRICE: {matrix}")
-    print(f"{'=' * 80}")
-
-    df_seq_matrix = df_sequential[df_sequential['matrix'] == matrix]
-    if len(df_seq_matrix) > 0:
-        seq_time = df_seq_matrix.iloc[0]['90percentile']
-        seq_time_ms = seq_time * 1000
-        print(f"Tempo Sequential: {seq_time_ms:.3f} ms")
-    else:
-        print(f"ATTENZIONE: Nessun dato sequenziale trovato per {matrix}")
-        continue
-
-    df_par_matrix = df_parallel_filtered[df_parallel_filtered['matrix'] == matrix]
-    if len(df_par_matrix) == 0:
-        print(f"ATTENZIONE: Nessun dato parallelo trovato per {matrix}")
-        continue
-
-    for schedule in schedules:
-        df_sched = df_par_matrix[df_par_matrix['schedule'] == schedule]
-        if len(df_sched) > 0:
-            for num_t in sorted(df_sched['num_threads'].unique()):
-                for chunk_size in sorted(df_sched['chunk_size'].unique()):
-                    df_config = df_sched[
-                        (df_sched['chunk_size'] == chunk_size) &
-                        (df_sched['num_threads'] == num_t)
-                    ]
-                    if len(df_config) > 0:
-                        par_time = df_config.iloc[0]['90percentile']
-                        par_time_ms = par_time * 1000
-                        speedup = seq_time / par_time
-                        speedup_results.append({
-                            'matrix': matrix,
-                            'sequential_time_ms': seq_time_ms,
-                            'schedule': schedule,
-                            'chunk_size': chunk_size,
-                            'num_threads': num_t,
-                            'parallel_time_ms': par_time_ms,
-                            'speedup': speedup
-                        })
-
-speedup_df = pd.DataFrame(speedup_results)
-print(f"\nSpeedup results totali: {len(speedup_df)}")
-if len(speedup_df) > 0:
-    print("="*80)
-    print("STATISTICHE SPEEDUP")
-    print("="*80)
-    print(f"Speedup medio: {speedup_df['speedup'].mean():.2f}x")
-    print(f"Speedup massimo: {speedup_df['speedup'].max():.2f}x")
-    print(f"Speedup minimo: {speedup_df['speedup'].min():.2f}x")
-else:
-    print("!!! ATTENZIONE: speedup_df è vuoto !!!")
-    print("Non è possibile proseguire con i grafici")
-
-# ---------- Grafici SPEEDUP per ogni tipo di schedule (PNG separati) ----------
-for schedule in schedules:
-    fig, axes = plt.subplots(2, 2, figsize=(20, 12))
-    axes = axes.flatten()
-    for idx, chunk_size in enumerate(chunk_sizes_to_compare):
-        ax = axes[idx]
-        df_sched_chunk = speedup_df[(speedup_df['schedule'] == schedule) & (speedup_df['chunk_size'] == chunk_size)]
-        for matrix in matrices:
-            df_mat = df_sched_chunk[df_sched_chunk['matrix'] == matrix]
-            if len(df_mat) > 0:
-                ax.plot(
-                    df_mat['num_threads'], 
-                    df_mat['speedup'], 
-                    marker='o', 
-                    label=matrix.replace('.mtx',''),
-                    linewidth=2,
-                    alpha=0.8
-                )
-        ax.axhline(y=1, color='red', linestyle='--', linewidth=1.5, alpha=0.5)
-        ax.set_title(f"Chunk size: {chunk_size}", fontsize=13)
-        ax.set_xlabel("Threads", fontsize=11)
-        ax.set_ylabel("Speedup (x)", fontsize=11)
-        ax.legend(fontsize=9)
-        ax.grid(axis='y', linestyle='--', alpha=0.3)
-        ax.set_xticks(thread_counts_to_plot)
-    fig.suptitle(f"Speedup per schedule: {schedule.capitalize()}", fontsize=16, fontweight='bold')
-    plt.tight_layout()
-    outpath = os.path.join(PLOTS_DIR, f"speedup_{schedule}.png")
-    plt.savefig(outpath, dpi=300, bbox_inches='tight')
-    print(f"Speedup grafico salvato: {outpath}")
-    plt.close()
-
-
 
 
 # ============================================================================
@@ -208,18 +138,18 @@ print(f"\nScalability data totali: {len(scalability_all_df)}")
 
 
 # ============================================================================
-# GRAFICO 2: SCALABILITÀ CON 4 FILE PNG (UNO PER CHUNK SIZE) - 3 SCHEDULE
+# GRAFICO 1: SCALABILITÀ CON 4 FILE PNG (UNO PER CHUNK SIZE) - 3 SCHEDULE
 # ============================================================================
 
 
 print("\n" + "=" * 80)
-print("CREAZIONE GRAFICO 2: STRONG SCALING (MULTIPLE CHUNK SIZE)")
+print("CREAZIONE GRAFICO 1: STRONG SCALING (MULTIPLE CHUNK SIZE)")
 print("=" * 80)
 
 
 # Per ogni chunk size, creo 3 subplot (uno per schedule)
 for chunk_idx, chunk_size in enumerate(chunk_sizes_to_compare):
-    fig2, axes2 = plt.subplots(1, 3, figsize=(24, 7))
+    fig1, axes1 = plt.subplots(1, 3, figsize=(24, 7))
     
     
     print(f"\n--- Creando grafico per Chunk Size: {chunk_size} ---")
@@ -235,7 +165,7 @@ for chunk_idx, chunk_size in enumerate(chunk_sizes_to_compare):
     
     
     for sched_idx, schedule in enumerate(schedules):
-        ax = axes2[sched_idx]
+        ax = axes1[sched_idx]
         
         
         # Plot per ogni matrice con questo schedule
@@ -285,14 +215,14 @@ for chunk_idx, chunk_size in enumerate(chunk_sizes_to_compare):
     
     
     # Titolo generale
-    fig2.suptitle(f'Strong Scaling per Schedule Type - Chunk Size: {chunk_size}',
+    fig1.suptitle(f'Strong Scaling per Schedule Type - Chunk Size: {chunk_size}',
                  fontsize=16, fontweight='bold', y=1.00)
     
     
     plt.tight_layout()
-    plot2_path = os.path.join(PLOTS_DIR, f'02_scalability_chunk_{chunk_idx}.png')
-    plt.savefig(plot2_path, dpi=300, bbox_inches='tight')
-    print(f"Grafico 2.{chunk_idx} salvato in: {plot2_path}")
+    plot1_path = os.path.join(PLOTS_DIR, f'01_scalability_chunk_{chunk_idx}.png')
+    plt.savefig(plot1_path, dpi=300, bbox_inches='tight')
+    print(f"Grafico 1.{chunk_idx} salvato in: {plot1_path}")
     plt.close()
 
 
@@ -402,18 +332,18 @@ print(f"\nGFLOPS data totali: {len(gflops_df)}")
 
 
 # ============================================================================
-# GRAFICO 3: GFLOPS CON 4 FILE PNG (UNO PER CHUNK SIZE) - 3 SCHEDULE
+# GRAFICO 2: GFLOPS CON 4 FILE PNG (UNO PER CHUNK SIZE) - 3 SCHEDULE
 # ============================================================================
 
 
 print("\n" + "=" * 80)
-print("CREAZIONE GRAFICO 3: GFLOP/s (MULTIPLE CHUNK SIZE)")
+print("CREAZIONE GRAFICO 2: GFLOP/s (MULTIPLE CHUNK SIZE)")
 print("=" * 80)
 
 
 # Per ogni chunk size, creo 3 subplot (uno per schedule)
 for chunk_idx, chunk_size in enumerate(chunk_sizes_to_compare):
-    fig3, axes3 = plt.subplots(1, 3, figsize=(26, 8))
+    fig2, axes2 = plt.subplots(1, 3, figsize=(26, 8))
     
     
     print(f"\n--- Creando grafico GFLOPS per Chunk Size: {chunk_size} ---")
@@ -440,7 +370,7 @@ for chunk_idx, chunk_size in enumerate(chunk_sizes_to_compare):
     
     
     for sched_idx, schedule in enumerate(schedules):
-        ax = axes3[sched_idx]
+        ax = axes2[sched_idx]
         
         
         # Dati per questo schedule + sequential
@@ -509,14 +439,14 @@ for chunk_idx, chunk_size in enumerate(chunk_sizes_to_compare):
     
     
     # Titolo generale
-    fig3.suptitle(f'GFLOP/s Performance per Schedule - Chunk Size: {chunk_size}',
+    fig2.suptitle(f'GFLOP/s Performance per Schedule - Chunk Size: {chunk_size}',
                  fontsize=16, fontweight='bold', y=0.995)
     
     
     plt.tight_layout()
-    plot3_path = os.path.join(PLOTS_DIR, f'03_gflops_chunk_{chunk_idx}.png')
-    plt.savefig(plot3_path, dpi=300, bbox_inches='tight')
-    print(f"Grafico 3.{chunk_idx} salvato in: {plot3_path}")
+    plot2_path = os.path.join(PLOTS_DIR, f'02_gflops_chunk_{chunk_idx}.png')
+    plt.savefig(plot2_path, dpi=300, bbox_inches='tight')
+    print(f"Grafico 2.{chunk_idx} salvato in: {plot2_path}")
     plt.close()
 
 
@@ -534,14 +464,13 @@ print("ANALISI COMPLETATA")
 print("=" * 80)
 print(f"\nTutti i grafici sono stati salvati in: {PLOTS_DIR}")
 print("\nFile creati:")
-print("  - 01_speedup_multichunk.png")
-print("  - 02_scalability_chunk_0.png")
-print("  - 02_scalability_chunk_1.png")
-print("  - 02_scalability_chunk_2.png")
-print("  - 02_scalability_chunk_3.png")
-print("  - 03_gflops_chunk_0.png")
-print("  - 03_gflops_chunk_1.png")
-print("  - 03_gflops_chunk_2.png")
-print("  - 03_gflops_chunk_3.png")
+print("  - 01_scalability_chunk_0.png")
+print("  - 01_scalability_chunk_1.png")
+print("  - 01_scalability_chunk_2.png")
+print("  - 01_scalability_chunk_3.png")
+print("  - 02_gflops_chunk_0.png")
+print("  - 02_gflops_chunk_1.png")
+print("  - 02_gflops_chunk_2.png")
+print("  - 02_gflops_chunk_3.png")
 
 plt.show()
