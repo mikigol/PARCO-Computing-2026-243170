@@ -529,7 +529,11 @@ To run your code manually on the UNITN HPC cluster:
 
 After logging in, load the necessary environment modules :
 ```bash
+
 module load gcc91
+gcc () { gcc -9.1.0 " $ @ " ; }
+g ++() { g ++ -9.1.0 " $ @ " ; }
+gcc -- version
 module load perf
 ```
 ### 2. Create an Interactive Session
