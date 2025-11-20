@@ -485,66 +485,39 @@ python3 lettura_dati.py
 pip3 install pandas numpy matplotlib 
 ```
 
-**Generates 4 PNG files in `Results/Plots/`:**
+**Generates 10 PNG files in `Results/Plots/`:**
 
-1. **confronto_schedule_multithread.png**
-   - 2×2 grid: threads = 4, 8, 16, 32 (one subplot per thread count)
-   - Compares: dynamic, static, guided schedules for each matrix
-   - Shows: chunk size next to each matrix name
-   - Metric: 90th percentile execution time (ms)
-   - Insight: How different schedules perform at various thread counts
+1. **Speedup Graphs (3 files - one per schedule type)**
+- speedup_dynamic.png, speedup_static.png, speedup_guided.png
+- 2×2 grid: one subplot per chunk size (4 chunk sizes shown
+- Each subplot shows: speedup curves for all matrices vs thread count (4, 8, 16, 32)
+- Red dashed line at y=1 indicates baseline (no speedup)
+- Metric: Speedup factor (x times faster than sequential)
+- Insight: How each schedule type performs across different chunk sizes and thread counts for each matrix
 
-2. **speedup_grafico.png**
-   - Best parallel vs sequential speedup
-   - One bar per matrix (5 matrices total)
-   - Shows: best configuration details (schedule, chunk, threads)
-   - Metric: Speedup factor (x times faster than sequential)
-   - Insight: Which matrices benefit most from parallelization
+2. **Strong Scaling Graphs (4 files - one per chunk size)**
+- 02_scalability_chunk_0.png through 02_scalability_chunk_3.png
+- Each file has 1×3 grid: one subplot per schedule type (dynamic, static, guided)
+- Shows: how speedup scales with increasing thread count for a specific chunk size
+- Ideal scaling line included (black dashed line)
+- All 5 matrices plotted per schedule
+- Log scale for thread count axis (1, 2, 4, 8, 16, 32)
+- Metric: Speedup vs number of threads
+- Insight: Which schedule scales best for each matrix at different chunk sizes
 
-3. **scalability_per_schedule.png**
-   - 1×3 grid: one subplot per schedule type (dynamic, static, guided)
-   - Shows: how speedup scales with increasing thread count
-   - Ideal scaling line included (black dashed line)
-   - All 5 matrices plotted per schedule
-   - Metric: Speedup vs number of threads (log scale for threads)
-   - Insight: Which schedule scales best for each matrix
+3. **GFLOPS Performance Graphs (4 files - one per chunk size)**
+- 03_gflops_chunk_0.png through 03_gflops_chunk_3.png
+- Each file has 1×3 grid: one subplot per schedule type (dynamic, static, guided)
+- Compares: sequential (1 thread), 4 threads, 8 threads, 16 threads, 32 threads
+- Color-coded bars by thread count (gray for sequential, gold→orange gradient for parallel)
+- Values annotated above each bar
+- Metric: Computational throughput (GFLOPS)
+- Insight: Computational efficiency and memory bandwidth utilization across different chunk sizes
 
-4. **gflops_per_schedule.png**
-   - 1×3 grid: one subplot per schedule type
-   - Compares: sequential, 8 threads, 16 threads, 32 threads
-   - Shows: chunk size for each matrix and configuration
-   - Metric: Computational throughput (GFLOPS)
-   - Insight: Computational efficiency and memory bandwidth utilization
-
-**GFLOPS Calculation:**
 ```
 GFLOPS = (2 × nnz) / execution_time / 1e9
 ```
 Where `nnz` is the number of non-zero elements in the matrix.
-
-### Example Usage - Python
-
-```python
-import pandas as pd
-
-# Load timing data
-df_time = pd.read_csv('Results/results_time.csv')
-
-# Find best configuration for torso1
-torso_data = df_time[df_time['matrix'] == 'torso1.mtx']
-best_config = torso_data.loc[torso_data['90percentile'].idxmin()]
-
-print(f"Best config for torso1:")
-print(f"  Schedule: {best_config['schedule']}")
-print(f"  Threads: {best_config['num_threads']}")
-print(f"  Chunk Size: {best_config['chunk_size']}")
-print(f"  Time: {best_config['90percentile']:.6f}s")
-
-# Calculate speedup
-seq_time = torso_data[torso_data['mode'] == 'sequential'].iloc[0]['90percentile']
-speedup = seq_time / best_config['90percentile']
-print(f"  Speedup: {speedup:.2f}x")
-```
 
 ---
 
