@@ -1,4 +1,4 @@
-# PARCO Computing 2026-243170: Sparse Matrix-Vector Multiplication Benchmark with OpenMP
+# PARCO Computing 2026-243170: Sparse Matrix-Vector Multiplication  with OpenMP
 
 ## Table of Contents
 
