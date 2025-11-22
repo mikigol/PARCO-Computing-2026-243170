@@ -472,7 +472,17 @@ matrix,mode,schedule,chunk_size,num_threads,run_number,l1_loads,l1_misses,l1_mis
 **Note:** Cache metrics are based on single iteration per measurement (different from time data which uses 10 iterations, then calculates 90th percentile)
 
 ### Python Analysis Script
-
+If you choose other matrix that the ones indicated in this README, you must change in the python script this section, at line 207:
+```bash
+# Dizionario con nnz per ogni matrice
+matrix_nnz = {
+    'bcsstk14.mtx': 32630,
+    'FEM_3D_thermal2.mtx': 3489300,
+    'pdb1HYS.mtx': 2190591,
+    'rajat24.mtx': 1948235,
+    'torso1.mtx': 8516500
+}
+```
 Run comprehensive analysis and generate visualizations:
 
 ```bash
