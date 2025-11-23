@@ -25,7 +25,7 @@ This project performs a comprehensive benchmark of sparse matrix-vector multipli
 **Key Outputs:**
 - Execution time measurements (90th percentile over 10 iterations)
 - Cache performance metrics (L1 and LLC miss rates)
-- Automatic visualization and analysis scripts (4 comprehensive graphs + statistics)
+- Automatic visualization and analysis scripts (8 comprehensive graphs + statistics)
 
 **Tested Matrices:**
 - **bcsstk14** (1,806×1,806, 32,630 nnz) - Small
