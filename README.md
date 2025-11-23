@@ -473,7 +473,7 @@ matrix,mode,schedule,chunk_size,num_threads,run_number,l1_loads,l1_misses,l1_mis
 
 ### Python Analysis Script
 If you choose other matrix that the ones indicated in this README, you must change in the python script this section, at line 207:
-```bash
+```python
 # Dizionario con nnz per ogni matrice
 matrix_nnz = {
     'bcsstk14.mtx': 32630,
@@ -482,6 +482,13 @@ matrix_nnz = {
     'rajat24.mtx': 1948235,
     'torso1.mtx': 8516500
 }
+```
+
+Also, you must change this three variables,to make consistent with you personal LOCAL PATH (the python scritpt was run only in the local laptop, not in the cluster): 
+```python
+TIME_PATH="/Users/mikelegolemi/Desktop/PARCO-Computing-2026-243170/Results/results_time.csv"
+PERF_PATH="/Users/mikelegolemi/Desktop/PARCO-Computing-2026-243170/Results/results_perf.csv"
+PLOTS_DIR="/Users/mikelegolemi/Desktop/PARCO-Computing-2026-243170/Results/Plots"
 ```
 Run comprehensive analysis and generate visualizations:
 
