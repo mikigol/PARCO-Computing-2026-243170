@@ -887,7 +887,7 @@ If using this benchmark in research, please cite:
 
 ```bibtex
 @software{parco2026,
-  title={Sparse Matrix-Vector Multiplication Benchmark with OpenMP},
+  title={Sparse Matrix-Vector Multiplication  with OpenMP},
   author={Mikele Golemi},
   year={2025},
   institution={University of Trento},
