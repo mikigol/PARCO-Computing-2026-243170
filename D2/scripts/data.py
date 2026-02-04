@@ -5,7 +5,6 @@ import os
 import numpy as np
 import matplotlib.ticker as ticker
 
-# --- CONFIGURAZIONE PERCORSI ---
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 INPUT_DIR = os.path.join(CURRENT_DIR, '../results/tables')     
 RAW_DIR = os.path.join(CURRENT_DIR, '../results')               
@@ -14,7 +13,6 @@ OUTPUT_DIR = os.path.join(CURRENT_DIR, '../plots')
 if not os.path.exists(OUTPUT_DIR):
     os.makedirs(OUTPUT_DIR)
 
-# Stile e Font
 sns.set_style("whitegrid")
 plt.rcParams.update({
     'font.size': 12,
@@ -22,9 +20,7 @@ plt.rcParams.update({
     'font.family': 'serif'
 })
 
-# ==========================================
-# 0. FORMATTERS E HELPERS
-# ==========================================
+
 
 def format_log2_x_axis(x, pos):
     if x <= 0: return ""
@@ -56,9 +52,6 @@ def calculate_metrics_dataframe(df, is_weak_scaling):
 
     return df
 
-# ==========================================
-# 1. GRAFICI CLASSICI (Speedup, Weak, Efficiency)
-# ==========================================
 
 def plot_strong_scaling_single(filename):
     if 'synthetic' in filename.lower() or 'weak' in filename.lower(): return
@@ -185,9 +178,6 @@ def plot_combined_efficiency_mpi_only():
     plt.close()
     print(f"[PLOT] Efficiency Combinata Generata: {save_path}")
 
-# ==========================================
-# 2. FEATURE: COMP vs COMM (STRONG SCALING)
-# ==========================================
 
 def plot_mpi_comm_vs_comp_stacked_ms_clean():
     print("\n--- Generazione Grafici Comm vs Comp (Strong - Dynamic Log) ---")
@@ -231,13 +221,11 @@ def plot_mpi_comm_vs_comp_stacked_ms_clean():
             'comm_time': 'mean'
         }).reset_index().sort_values('num_procs')
 
-        # Conversion ms
         grouped['elapsed_time_ms'] = grouped['elapsed_time'] * 1000
         grouped['comm_time_ms'] = grouped['comm_time'] * 1000
         grouped['comp_time_ms'] = grouped['elapsed_time_ms'] - grouped['comm_time_ms']
         grouped['comp_time_ms'] = grouped['comp_time_ms'].clip(lower=0)
 
-        # Plot
         procs = grouped['num_procs'].astype(str).tolist()
         comp_vals = grouped['comp_time_ms'].tolist()
         comm_vals = grouped['comm_time_ms'].tolist()
@@ -249,7 +237,6 @@ def plot_mpi_comm_vs_comp_stacked_ms_clean():
         ax.bar(x_pos, comp_vals, bar_width, label='Computation', color='#4a90e2', edgecolor='black', alpha=0.9)
         ax.bar(x_pos, comm_vals, bar_width, bottom=comp_vals, label='Communication', color='#ff3333', edgecolor='black', alpha=0.9)
 
-        # FIX LOG SCALE LEGGIBILE
         ax.set_yscale('log')
         ax.yaxis.set_major_locator(ticker.LogLocator(base=10.0, numticks=15))
         ax.yaxis.set_minor_locator(ticker.LogLocator(base=10.0, subs=np.arange(0.1, 1.0, 0.1), numticks=15))
@@ -275,9 +262,7 @@ def plot_mpi_comm_vs_comp_stacked_ms_clean():
         plt.close()
         print(f"[PLOT] Generato (Strong): {out_filename}")
 
-# ==========================================
-# 3. FEATURE: COMP vs COMM (WEAK SCALING)
-# ==========================================
+
 
 def plot_weak_scaling_comm_vs_comp_ms():
     print("\n--- Generazione Grafici Comm vs Comp (Weak - Dynamic Log) ---")
@@ -319,13 +304,11 @@ def plot_weak_scaling_comm_vs_comp_ms():
             'comm_time': 'mean'
         }).reset_index().sort_values('num_procs')
 
-        # Conversion ms
         grouped['elapsed_time_ms'] = grouped['elapsed_time'] * 1000
         grouped['comm_time_ms'] = grouped['comm_time'] * 1000
         grouped['comp_time_ms'] = grouped['elapsed_time_ms'] - grouped['comm_time_ms']
         grouped['comp_time_ms'] = grouped['comp_time_ms'].clip(lower=0)
 
-        # Plot
         procs = grouped['num_procs'].astype(str).tolist()
         comp_vals = grouped['comp_time_ms'].tolist()
         comm_vals = grouped['comm_time_ms'].tolist()
@@ -337,7 +320,6 @@ def plot_weak_scaling_comm_vs_comp_ms():
         ax.bar(x_pos, comp_vals, bar_width, label='Computation', color='#4a90e2', edgecolor='black', alpha=0.9)
         ax.bar(x_pos, comm_vals, bar_width, bottom=comp_vals, label='Communication', color='#ff3333', edgecolor='black', alpha=0.9)
 
-        # Log Scale "Smart"
         ax.set_yscale('log')
         ax.yaxis.set_major_locator(ticker.LogLocator(base=10.0, numticks=15))
         ax.yaxis.set_minor_locator(ticker.LogLocator(base=10.0, subs=np.arange(0.1, 1.0, 0.1), numticks=15))
@@ -363,9 +345,7 @@ def plot_weak_scaling_comm_vs_comp_ms():
         plt.close()
         print(f"[PLOT] Generato (Weak): {out_filename}")
 
-# ==========================================
-# 4. NUOVA FEATURE: GFLOP/s (COLUMNS)
-# ==========================================
+
 
 def plot_mpi_gflops_scaling():
     """
@@ -380,13 +360,11 @@ def plot_mpi_gflops_scaling():
         filepath = os.path.join(INPUT_DIR, filename)
         df = pd.read_csv(filepath)
         
-        # 1. Filtro: Solo Pure MPI
         df_mpi = df[df['mode'].astype(str).str.contains("Pure MPI", case=False)].copy()
         if df_mpi.empty: continue
         
         matrix_name = filename.replace('summary_', '').replace('.csv', '').replace('_combined', '')
         
-        # 2. Identifica colonna Gflops
         gflops_col = None
         for col in df_mpi.columns:
             if 'gflops' in col.lower():
@@ -401,21 +379,16 @@ def plot_mpi_gflops_scaling():
             else:
                 continue
 
-        # Ordina per processi
         df_mpi = df_mpi.sort_values('num_procs')
 
-        # 3. Plot a COLONNE
         fig, ax = plt.subplots(figsize=(8, 6))
         
-        # Usiamo barplot di seaborn che gestisce bene le categorie
         sns.barplot(data=df_mpi, x='num_procs', y=gflops_col, 
                     color='#d62728', edgecolor='black', alpha=0.8, ax=ax)
 
-        # Etichette sopra le barre (opzionale, ma utile per leggere i valori esatti)
         for container in ax.containers:
             ax.bar_label(container, fmt='%.2f', padding=3, fontsize=10)
 
-        # Asse Y
         ax.set_ylabel("Gflop/s", fontsize=12) 
         ax.set_xlabel("Number of Processes ($P$)", fontsize=12)
         ax.set_title(f"Performance (Gflop/s): {matrix_name}\nPure MPI Only", fontsize=14, fontweight='bold')
@@ -430,14 +403,11 @@ def plot_mpi_gflops_scaling():
         plt.close()
         print(f"[PLOT] Gflops Bar Chart Generato: {out_filename}")
 
-# ==========================================
-# MAIN
-# ==========================================
+
 
 def main():
     print("=== INIZIO ANALISI ===")
     
-    # 1. Grafici Summary Classici
     files = [f for f in os.listdir(INPUT_DIR) if f.startswith('summary_') and f.endswith('.csv')]
     for f in files:
         plot_strong_scaling_single(f)
@@ -445,13 +415,10 @@ def main():
     
     plot_combined_efficiency_mpi_only()
 
-    # 2. Grafici Raw Breakdown (Strong)
     plot_mpi_comm_vs_comp_stacked_ms_clean()
 
-    # 3. Grafici Raw Breakdown (Weak)
     plot_weak_scaling_comm_vs_comp_ms()
 
-    # 4. NUOVO: Gflops vs Processi (Bar Chart)
     plot_mpi_gflops_scaling()
     
     print("=== COMPLETATO ===")
