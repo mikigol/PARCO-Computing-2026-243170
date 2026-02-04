@@ -1,0 +1,21 @@
+--- Generated Synthetic Matrix (Block Distribution) ---
+Global Rows: 10000, Global Cols: 10000, Total NNZ: 501174
+Weak Scaling Mode: 10000 rows/proc, 50 nnz/row (avg)
+-----------------------------------------------------
+matrix_name,rank,num_procs,run,elapsed_time,comm_time,local_nz,ghost_entries,local_flops
+synthetic_np1,0,1,0,0.000082970,0.000014067,501174,0,1002348
+synthetic_np1,0,1,1,0.000077724,0.000013351,501174,0,1002348
+synthetic_np1,0,1,2,0.000072002,0.000013113,501174,0,1002348
+synthetic_np1,0,1,3,0.000074387,0.000014305,501174,0,1002348
+synthetic_np1,0,1,4,0.000063419,0.000014544,501174,0,1002348
+synthetic_np1,0,1,5,0.000068665,0.000015020,501174,0,1002348
+synthetic_np1,0,1,6,0.000067472,0.000014305,501174,0,1002348
+synthetic_np1,0,1,7,0.000062704,0.000013590,501174,0,1002348
+synthetic_np1,0,1,8,0.000063181,0.000013351,501174,0,1002348
+synthetic_np1,0,1,9,0.000071287,0.000015020,501174,0,1002348
+
+
+=== SUMMARY METRICS TABLE ===
+Matrix_Name,Num_Processes,Ghost_Entries_Min,Ghost_Entries_Avg,Ghost_Entries_Max,Load_Imbalance_Ratio,System_P90_Time,Total_GFLOPs
+synthetic_np1,1,0,0.00,0,1.0000,0.000082970,12.0809
+=============================

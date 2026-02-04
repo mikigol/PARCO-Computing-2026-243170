@@ -1,0 +1,36 @@
+Rank 0: Reading matrix ../data/bcsstk14.mtx...
+Matrix type: matrix coordinate real symmetric
+  Real: yes
+  Complex: no
+  Symmetric: yes
+  Pattern: no
+Matrix size: 1806 x 1806, NNZ (file): 32630
+Actual NNZ (after symmetry expansion): 63454
+
+matrix_name,rank,num_procs,run,elapsed_time,comm_time,local_nz,ghost_entries,local_flops
+../data/bcsstk14.mtx,0,2,0,0.000032663,0.000003576,31793,872,63586
+../data/bcsstk14.mtx,0,2,1,0.000031948,0.000002861,31793,872,63586
+../data/bcsstk14.mtx,0,2,2,0.000034332,0.000005484,31793,872,63586
+../data/bcsstk14.mtx,0,2,3,0.000031710,0.000002623,31793,872,63586
+../data/bcsstk14.mtx,0,2,4,0.000031710,0.000002861,31793,872,63586
+../data/bcsstk14.mtx,0,2,5,0.000031710,0.000002861,31793,872,63586
+../data/bcsstk14.mtx,0,2,6,0.000033140,0.000004292,31793,872,63586
+../data/bcsstk14.mtx,0,2,7,0.000031710,0.000002861,31793,872,63586
+../data/bcsstk14.mtx,0,2,8,0.000032187,0.000003338,31793,872,63586
+../data/bcsstk14.mtx,0,2,9,0.000031948,0.000002861,31793,872,63586
+../data/bcsstk14.mtx,1,2,0,0.000032187,0.000003338,31661,888,63322
+../data/bcsstk14.mtx,1,2,1,0.000031471,0.000002623,31661,888,63322
+../data/bcsstk14.mtx,1,2,2,0.000034094,0.000005245,31661,888,63322
+../data/bcsstk14.mtx,1,2,3,0.000031471,0.000002623,31661,888,63322
+../data/bcsstk14.mtx,1,2,4,0.000031233,0.000002384,31661,888,63322
+../data/bcsstk14.mtx,1,2,5,0.000031471,0.000002623,31661,888,63322
+../data/bcsstk14.mtx,1,2,6,0.000031233,0.000002384,31661,888,63322
+../data/bcsstk14.mtx,1,2,7,0.000031471,0.000002623,31661,888,63322
+../data/bcsstk14.mtx,1,2,8,0.000031233,0.000002384,31661,888,63322
+../data/bcsstk14.mtx,1,2,9,0.000031471,0.000002623,31661,888,63322
+
+
+=== SUMMARY METRICS TABLE ===
+Matrix_Name,Num_Processes,Ghost_Entries_Min,Ghost_Entries_Avg,Ghost_Entries_Max,Load_Imbalance_Ratio,System_P90_Time,Total_GFLOPs
+../data/bcsstk14.mtx,2,872,880.00,888,1.0021,0.000034332,3.6965
+=============================
