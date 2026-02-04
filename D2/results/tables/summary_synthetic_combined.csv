@@ -1,0 +1,17 @@
+matrix_name,mode,num_procs,total_gflops,p90_time,load_imbalance,ghost_avg
+synthetic_np1,Hybrid (MPI+OMP),1,12.0809,8.297e-05,1.0,0.0
+synthetic_np2,Hybrid (MPI+OMP),2,0.0377,0.053066969,1.001,10000.0
+synthetic_np4,Hybrid (MPI+OMP),4,0.0292,0.137145042,1.0009,29999.75
+synthetic_np8,Hybrid (MPI+OMP),8,0.0226,0.353399277,1.0011,69869.38
+synthetic_np16,Hybrid (MPI+OMP),16,0.0225,0.709958792,1.002,143407.25
+synthetic_np32,Hybrid (MPI+OMP),32,0.0396,0.808512926,1.0023,244996.59
+synthetic_np64,Hybrid (MPI+OMP),64,0.0481,1.329790831,1.0026,341562.64
+synthetic_np128,Hybrid (MPI+OMP),128,0.0687,1.86267662,1.0036,410725.02
+synthetic_np1,Pure MPI,1,1.8343,0.000546455,1.0,0.0
+synthetic_np2,Pure MPI,2,3.2253,0.000620604,1.001,10000.0
+synthetic_np4,Pure MPI,4,4.612,0.000867128,1.0009,29999.75
+synthetic_np8,Pure MPI,8,5.7051,0.001401901,1.0011,69869.38
+synthetic_np16,Pure MPI,16,2.8105,0.005692005,1.002,143407.25
+synthetic_np32,Pure MPI,32,1.4816,0.021594763,1.0023,244996.59
+synthetic_np64,Pure MPI,64,1.2577,0.050888777,1.0026,341562.64
+synthetic_np128,Pure MPI,128,0.4245,0.301592827,1.0036,410725.02
