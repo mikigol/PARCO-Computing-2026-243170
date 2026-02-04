@@ -2,12 +2,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include "structures.h"
-#include "matrix_io.h" // O il tuo header per leggere mtx
+#include "matrix_io.h" 
 
-// Prototipo helper
 void convert_coo_to_csr(int *I, int *J, double *V, int nz, int rows, LocalCSR *dest);
 
-// Funzione principale di caricamento e distribuzione
 void load_and_scatter_matrix(const char *filename, int rank, int size, 
                              LocalCSR *local_mat, int *M_glob, int *N_glob, int *nz_glob) {
     
@@ -26,13 +24,11 @@ void load_and_scatter_matrix(const char *filename, int rank, int size,
         MPI_Bcast(M_glob, 1, MPI_INT, 0, MPI_COMM_WORLD);
         MPI_Bcast(N_glob, 1, MPI_INT, 0, MPI_COMM_WORLD);
 
-        // Conta elementi per ogni processo
         int *counts = (int*)calloc(size, sizeof(int));
         for (int i = 0; i < mat->nz; i++) {
             counts[GET_OWNER(mat->I[i], size)]++;
         }
 
-        // Invia dati agli altri rank
         for (int p = 1; p < size; p++) {
             int p_nz = counts[p];
             MPI_Send(&p_nz, 1, MPI_INT, p, 0, MPI_COMM_WORLD);
@@ -57,7 +53,6 @@ void load_and_scatter_matrix(const char *filename, int rank, int size,
             free(buf_I); free(buf_J); free(buf_V);
         }
 
-        // Tieni i dati per Rank 0
         int my_nz = counts[0];
         int *my_I = malloc(my_nz * sizeof(int));
         int *my_J = malloc(my_nz * sizeof(int));
@@ -75,16 +70,14 @@ void load_and_scatter_matrix(const char *filename, int rank, int size,
         free(counts);
         free_matrix(mat);
 
-        // Converti i dati raw in CSR locale
         int my_rows = (*M_glob + size - 1 - rank) / size;
-        // Adatta indici globali -> locali per le righe
         for(int i=0; i<my_nz; i++) my_I[i] = GET_LOCAL_IDX(my_I[i], size);
         
         convert_coo_to_csr(my_I, my_J, my_V, my_nz, my_rows, local_mat);
         free(my_I); free(my_J); free(my_V);
 
     } else {
-        // Codice per i Worker (Rank != 0)
+
         MPI_Bcast(M_glob, 1, MPI_INT, 0, MPI_COMM_WORLD);
         MPI_Bcast(N_glob, 1, MPI_INT, 0, MPI_COMM_WORLD);
 
@@ -110,19 +103,15 @@ void load_and_scatter_matrix(const char *filename, int rank, int size,
     }
 }
 
-// Helper interno per convertire COO -> CSR
 void convert_coo_to_csr(int *I, int *J, double *V, int nz, int rows, LocalCSR *dest) {
     dest->n_local_rows = rows;
     dest->n_local_nz = nz;
     dest->row_ptr = calloc(rows + 1, sizeof(int));
     
-    // 1. Conta elementi per riga
     for (int i = 0; i < nz; i++) dest->row_ptr[I[i] + 1]++;
     
-    // 2. Prefix sum
     for (int i = 0; i < rows; i++) dest->row_ptr[i+1] += dest->row_ptr[i];
     
-    // 3. Riempi col_ind e val
     dest->col_ind = malloc(nz * sizeof(int));
     dest->val = malloc(nz * sizeof(double));
     
