@@ -11,13 +11,11 @@
 #endif
 #include "structures.h"
 
-// --- PROTOTIPI ---
 void load_and_scatter_matrix(const char *f, int r, int s, LocalCSR *m, int *Mg, int *Ng, int *nz);
 void setup_communication_pattern(LocalCSR *m, CommInfo *c, int r, int s, int Ng);
 void perform_ghost_exchange(CommInfo *c, double *x, int dim);
 void compute_spmv(LocalCSR *m, double *x, double *y);
 
-// Funzione aggiunta per il caso Sintetico (Weak Scaling)
 void generate_synthetic_matrix(int rows_per_proc, int nnz_per_row, int rank, int size, LocalCSR *local_mat, int *M_glob, int *N_glob, int *nz_glob);
 
 int compare_doubles(const void *a, const void *b) {
@@ -28,15 +26,13 @@ int compare_doubles(const void *a, const void *b) {
     return 0;
 }
 
-// --- MAIN ---
 int main(int argc, char *argv[]) {
     int provided, rank, size;
-    // Inizializza MPI con supporto Thread (necessario per Hybrid)
+
     MPI_Init_thread(&argc, &argv, MPI_THREAD_FUNNELED, &provided);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
 
-    // Gestione Argomenti base
     if (argc < 2) {
         if (rank == 0) {
             printf("Usage Strong: %s <matrix.mtx> [repeats]\n", argv[0]);
@@ -50,12 +46,11 @@ int main(int argc, char *argv[]) {
     int is_synthetic = (strcmp(arg1, "synthetic") == 0);
     int repeats = 10; 
 
-    // --- FASE 1: Setup Matrice (File vs Synthetic) ---
     LocalCSR local_mat = {0};
     int M_glob, N_glob, nz_glob;
 
     if (is_synthetic) {
-        // --- CASO WEAK SCALING (Sintetico) ---
+
         if (argc < 5) {
             if (rank == 0) printf("Error: Synthetic mode requires: synthetic <repeats> <rows_per_proc> <nnz_per_row>\n");
             MPI_Finalize(); 
@@ -65,24 +60,19 @@ int main(int argc, char *argv[]) {
         int rows_pp = atoi(argv[3]);
         int nnz_pp = atoi(argv[4]);
         
-        // Genera la matrice localmente senza leggere file
         generate_synthetic_matrix(rows_pp, nnz_pp, rank, size, &local_mat, &M_glob, &N_glob, &nz_glob);
         
     } else {
-        // --- CASO STRONG SCALING (File .mtx) ---
         if (argc > 2) repeats = atoi(argv[2]);
         load_and_scatter_matrix(arg1, rank, size, &local_mat, &M_glob, &N_glob, &nz_glob);
     }
     
-    // Setup Comunicazione (Ghost cells) - Identico per entrambi i casi
     CommInfo comm = {0};
     setup_communication_pattern(&local_mat, &comm, rank, size, N_glob);
 
-    // --- FASE 2: Init Vettori ---
-    // Determina la dimensione del vettore locale owned (Block distribution standard)
+    
     int my_x_dim = 0;
-    // Nota: GET_OWNER deve essere coerente con la distribuzione. 
-    // Nel sintetico assumiamo distribuzione a blocchi uniforme.
+   
     int chunk = (N_glob + size - 1) / size; 
     int start_col = rank * chunk;
     int end_col = (rank + 1) * chunk;
@@ -93,15 +83,12 @@ int main(int argc, char *argv[]) {
     double *full_x = malloc((my_x_dim + comm.num_ghosts) * sizeof(double));
     double *local_y = malloc(local_mat.n_local_rows * sizeof(double));
     
-    // Inizializza vettore X
-    srand(rank * 1234); // Seed deterministico
+    srand(rank * 1234); 
     for(int i=0; i<my_x_dim; i++) full_x[i] = ((double)rand() / RAND_MAX) * 2.0 - 1.0; 
 
-    // --- FASE 3: Benchmark Loop ---
     double *run_total_times = (double*)malloc(repeats * sizeof(double));
     double *run_comm_times  = (double*)malloc(repeats * sizeof(double));
 
-    // Warm-up
     perform_ghost_exchange(&comm, full_x, my_x_dim);
     compute_spmv(&local_mat, full_x, local_y);
     
@@ -112,22 +99,18 @@ int main(int argc, char *argv[]) {
         
         double t_start = MPI_Wtime();
         
-        // 1. Misura solo comunicazione
         perform_ghost_exchange(&comm, full_x, my_x_dim);
         double t_after_comm = MPI_Wtime();
         
-        // 2. Misura calcolo
         compute_spmv(&local_mat, full_x, local_y);
         double t_end = MPI_Wtime();
         
-        run_comm_times[r] = t_after_comm - t_after_comm; // Nota: nello script precedente era t_after_comm - t_start
-        // Correggo logica timer per coerenza
+        run_comm_times[r] = t_after_comm - t_after_comm; 
         run_comm_times[r] = t_after_comm - t_start;
         run_total_times[r] = t_end - t_start;
     }
     
-    // --- FASE 4: Output CSV ---
-    // Se sintetico, stampiamo "synthetic_NxN" come nome matrice
+    
     char display_name[64];
     if (is_synthetic) snprintf(display_name, 64, "synthetic_np%d", size);
     else strncpy(display_name, arg1, 64);
@@ -148,8 +131,7 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    // --- FASE 5 & 6: Summary Stats ---
-    // (Calcoli statistici invariati)
+   
     double *sorted_times = malloc(repeats * sizeof(double));
     for(int i=0; i<repeats; i++) sorted_times[i] = run_total_times[i];
     qsort(sorted_times, repeats, sizeof(double), compare_doubles);
@@ -189,13 +171,11 @@ int main(int argc, char *argv[]) {
         printf("=============================\n");
     }
 
-    // Cleanup
     free(local_mat.val);
     free(local_mat.col_ind);
     free(local_mat.row_ptr);
     free(full_x);
     free(local_y);
-    // Nota: comm.ghost_indices va liberato se allocato in setup_communication_pattern
     
     MPI_Finalize();
     return 0;
