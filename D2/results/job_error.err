@@ -1,0 +1,31 @@
+In file included from /usr/include/string.h:633,
+                 from ../src/main.c:3:
+../src/main.c: In function ‘main’:
+../src/main.c:133:10: warning: ‘__builtin_strncpy’ specified bound 64 equals destination size [-Wstringop-truncation]
+  133 |     else strncpy(display_name, arg1, 64);
+      |          ^~~~~~~
+../src/computation.c: In function ‘compute_spmv’:
+../src/computation.c:14: warning: ignoring #pragma omp parallel [-Wunknown-pragmas]
+   14 |     #pragma omp parallel for schedule(runtime)
+      | 
+../src/communication.c: In function ‘perform_ghost_exchange’:
+../src/communication.c:118: warning: ignoring #pragma omp parallel [-Wunknown-pragmas]
+  118 |     #pragma omp parallel for
+      | 
+../src/communication.c:129: warning: ignoring #pragma omp parallel [-Wunknown-pragmas]
+  129 |     #pragma omp parallel for
+      | 
+../src/mmio.c: In function ‘mm_typecode_to_str’:
+../src/mmio.c:454:9: warning: variable ‘error’ set but not used [-Wunused-but-set-variable]
+  454 |     int error =0;
+      |         ^~~~~
+In file included from /usr/include/string.h:633,
+                 from ../src/main.c:3:
+../src/main.c: In function ‘main’:
+../src/main.c:133:10: warning: ‘__builtin_strncpy’ specified bound 64 equals destination size [-Wstringop-truncation]
+  133 |     else strncpy(display_name, arg1, 64);
+      |          ^~~~~~~
+../src/mmio.c: In function ‘mm_typecode_to_str’:
+../src/mmio.c:454:9: warning: variable ‘error’ set but not used [-Wunused-but-set-variable]
+  454 |     int error =0;
+      |         ^~~~~

@@ -1,0 +1,109 @@
+ ----- 
+MPI SpMV BENCHMARK JOB
+ ----- 
+Job ID:            5038560.hpc-head-n1.unitn.it
+Job Name:          spmv_benchmark
+Queue:             short_cpuQ
+Working Directory: /home/mikele.golemi/D2/scripts
+Start time:        Tue Feb  3 17:40:23 CET 2026
+
+--- PBS Resource Request ---
+Nodes:             6
+CPUs per node:     24
+Total MPI procs:   144
+Walltime:          06:00:00
+ ----- 
+
+Saving system information...
+System info saved to: ../results/system_info_5038560.hpc-head-n1.unitn.it.txt
+
+Verifying environment...
+Configuring MPI environment...
+MPI configuration set.
+
+Starting time benchmark execution...
+Trovate 3 matrici.
+------------------------------------------------
+📂 File sorgente: ../src/main.c ../src/io_setup.c ../src/computation.c ../src/communication.c ../src/matrix_io.c ../src/mmio.c
+🔨 Compilazione MPI Pura...
+✅ MPI compilato.
+🔨 Compilazione Hybrid...
+✅ Hybrid compilato.
+------------------------------------------------
+🟦 STRONG SCALING (MPI)
+   Running STRONG (MPI): NP=1
+   Running STRONG (MPI): NP=2
+   Running STRONG (MPI): NP=4
+   Running STRONG (MPI): NP=8
+   Running STRONG (MPI): NP=16
+   Running STRONG (MPI): NP=32
+   Running STRONG (MPI): NP=64
+   Running STRONG (MPI): NP=128
+   Running STRONG (MPI): NP=1
+   Running STRONG (MPI): NP=2
+   Running STRONG (MPI): NP=4
+   Running STRONG (MPI): NP=8
+   Running STRONG (MPI): NP=16
+   Running STRONG (MPI): NP=32
+   Running STRONG (MPI): NP=64
+   Running STRONG (MPI): NP=128
+   Running STRONG (MPI): NP=1
+   Running STRONG (MPI): NP=2
+   Running STRONG (MPI): NP=4
+   Running STRONG (MPI): NP=8
+   Running STRONG (MPI): NP=16
+   Running STRONG (MPI): NP=32
+   Running STRONG (MPI): NP=64
+   Running STRONG (MPI): NP=128
+🟪 STRONG SCALING (HYBRID)
+   Running STRONG (HYBRID): NP=1
+   Running STRONG (HYBRID): NP=2
+   Running STRONG (HYBRID): NP=4
+   Running STRONG (HYBRID): NP=8
+   Running STRONG (HYBRID): NP=16
+   Running STRONG (HYBRID): NP=32
+   Running STRONG (HYBRID): NP=64
+   Running STRONG (HYBRID): NP=128
+   Running STRONG (HYBRID): NP=1
+   Running STRONG (HYBRID): NP=2
+   Running STRONG (HYBRID): NP=4
+   Running STRONG (HYBRID): NP=8
+   Running STRONG (HYBRID): NP=16
+   Running STRONG (HYBRID): NP=32
+   Running STRONG (HYBRID): NP=64
+   Running STRONG (HYBRID): NP=128
+   Running STRONG (HYBRID): NP=1
+   Running STRONG (HYBRID): NP=2
+   Running STRONG (HYBRID): NP=4
+   Running STRONG (HYBRID): NP=8
+   Running STRONG (HYBRID): NP=16
+   Running STRONG (HYBRID): NP=32
+   Running STRONG (HYBRID): NP=64
+   Running STRONG (HYBRID): NP=128
+🟧 WEAK SCALING (MPI)
+   Running WEAK (MPI): NP=1
+   Running WEAK (MPI): NP=2
+   Running WEAK (MPI): NP=4
+   Running WEAK (MPI): NP=8
+   Running WEAK (MPI): NP=16
+   Running WEAK (MPI): NP=32
+   Running WEAK (MPI): NP=64
+   Running WEAK (MPI): NP=128
+🟨 WEAK SCALING (HYBRID)
+   Running WEAK (HYBRID): NP=1
+   Running WEAK (HYBRID): NP=2
+   Running WEAK (HYBRID): NP=4
+   Running WEAK (HYBRID): NP=8
+   Running WEAK (HYBRID): NP=16
+   Running WEAK (HYBRID): NP=32
+   Running WEAK (HYBRID): NP=64
+   Running WEAK (HYBRID): NP=128
+✅ FINITO.
+
+--------------------------
+Job completed successfully!
+Strong scaling (MPI): 7722 runs -> ../results/strong_scaling_all.csv
+Weak scaling (MPI):   2582 runs -> ../results/weak_scaling_all.csv
+Strong scaling (Hyb): 7722 runs -> ../results/strong_scaling_hybrid.csv
+End time: Tue Feb  3 18:37:29 CET 2026
+--------------------------
