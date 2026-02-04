@@ -1,11 +1,6 @@
 #!/bin/bash
 
-# ==========================================
-# 1. CONFIGURAZIONE BLINDATA
-# ==========================================
 
-# ELENCO ESPLICITO DEI FILE (Niente asterischi, niente errori)
-# Se aggiungi file al progetto, aggiungili qui dentro.
 MY_SOURCES="../src/main.c ../src/io_setup.c ../src/computation.c ../src/communication.c ../src/matrix_io.c ../src/mmio.c"
 
 EXEC_MPI="../results/spmv_mpi.out"
@@ -13,38 +8,30 @@ EXEC_HYBRID="../results/spmv_hybrid.out"
 DATA_DIR="../data"
 RESULTS_DIR="../results"
 
-# Configurazione MPI
 PROCESSES_PER_NODE=24
 MAX_PROCESSES=128
 PROCESSES=(1 2 4 8 16 32 64 128)
 
-# Configurazione OpenMP
 OMP_SCHEDULE="dynamic,64"
 OMP_PROC_BIND="close"
 
-# Parametri Benchmark
 REPEATS=10
 ROWS_PER_PROC=10000
 NNZ_PER_ROW=50
 
-# Compilatore
 MPICC="mpicc"
 CFLAGS_COMMON="-O3 -Wall -lm -I../include"
 CFLAGS_MPI="$CFLAGS_COMMON"
 CFLAGS_HYBRID="$CFLAGS_COMMON -fopenmp"
 
-# File CSV Output
 STRONG_SCALING_CSV="$RESULTS_DIR/strong_scaling_all.csv"
 WEAK_SCALING_CSV="$RESULTS_DIR/weak_scaling_all.csv"
 STRONG_SCALING_HYBRID_CSV="$RESULTS_DIR/strong_scaling_hybrid.csv"
 WEAK_SCALING_HYBRID_CSV="$RESULTS_DIR/weak_scaling_hybrid.csv"
 
-# ==========================================
-# 2. FUNZIONI
-# ==========================================
+
 
 find_matrices() {
-    # Controllo che i file sorgente esistano davvero
     if [ ! -f ../src/main.c ]; then
         echo "❌ ERRORE CRITICO: Non trovo ../src/main.c"
         echo "   Sono nella cartella: $(pwd)"
@@ -76,7 +63,6 @@ compile_code() {
     fi
     echo "✅ MPI compilato."
 
-    # 2. Compilazione Hybrid
     echo "🔨 Compilazione Hybrid..."
     $MPICC $CFLAGS_HYBRID $MY_SOURCES -o "$EXEC_HYBRID"
     
@@ -145,16 +131,13 @@ run_weak_scaling() {
            "$exec" synthetic "$REPEATS" "$ROWS_PER_PROC" "$NNZ_PER_ROW" 2>&1 | tee "$log_file" | parse_output >> "$csv_file"
 }
 
-# ==========================================
-# 3. MAIN
-# ==========================================
+
 
 mkdir -p "$RESULTS_DIR"
 find_matrices
 compile_code
 initialize_csv_files
 
-# Strong Scaling
 if [ ${#MATRICES[@]} -gt 0 ]; then
     echo "🟦 STRONG SCALING (MPI)"
     for matrix in "${MATRICES[@]}"; do
@@ -175,7 +158,6 @@ if [ ${#MATRICES[@]} -gt 0 ]; then
     done
 fi
 
-# Weak Scaling
 echo "🟧 WEAK SCALING (MPI)"
 for np in "${PROCESSES[@]}"; do
     if [ "$np" -le "$MAX_PROCESSES" ]; then
