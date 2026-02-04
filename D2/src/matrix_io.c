@@ -20,20 +20,17 @@ Matrix* read_matrix(const char *filename) {
            exit(1);
        }
 
-       // ===== STAMPA INFORMAZIONI MATRICE =====
        printf("Matrix type: %s\n", mm_typecode_to_str(matcode));
        printf("  Real: %s\n", mm_is_real(matcode) ? "yes" : "no");
        printf("  Complex: %s\n", mm_is_complex(matcode) ? "yes" : "no");
        printf("  Symmetric: %s\n", mm_is_symmetric(matcode) ? "yes" : "no");
        printf("  Pattern: %s\n", mm_is_pattern(matcode) ? "yes" : "no");
 
-       // ===== VALIDAZIONE FORMATO =====
        if (!mm_is_matrix(matcode) || !mm_is_sparse(matcode)) {
            fprintf(stderr, "Error: only supports matrix, sparse format.\n");
            exit(1);
        }
 
-       // ===== LEGGI DIMENSIONI =====
        if (mm_read_mtx_crd_size(f, &mat->M, &mat->N, &mat->nz) != 0) {
            fprintf(stderr, "Error reading matrix size.\n");
            exit(1);
@@ -41,38 +38,31 @@ Matrix* read_matrix(const char *filename) {
 
        printf("Matrix size: %d x %d, NNZ (file): %d\n", mat->M, mat->N, mat->nz);
 
-       // ===== ALLOCA CON MARGINE PER SIMMETRIA =====
        int max_nz = mm_is_symmetric(matcode) ? (2 * mat->nz) : mat->nz;
        mat->I = (int*)malloc(max_nz * sizeof(int));
        mat->J = (int*)malloc(max_nz * sizeof(int));
        mat->val = (double*)malloc(max_nz * sizeof(double));
 
-       // ===== LEGGI ELEMENTI CON GESTIONE SIMMETRIA E PATTERN =====
        int nz_actual = 0;
        
        for (int i = 0; i < mat->nz; i++) {
            int row, col;
-           double value = 1.0;  // Default per pattern
+           double value = 1.0;  
            
-           // Leggi riga e colonna
            fscanf(f, "%d %d", &row, &col);
            
-           // Se NON è pattern, leggi il valore
            if (!mm_is_pattern(matcode)) {
                fscanf(f, "%lf", &value);
            }
            
-           // Converti da 1-based a 0-based
            row--;
            col--;
            
-           // Aggiungi elemento (row, col)
            mat->I[nz_actual] = row;
            mat->J[nz_actual] = col;
            mat->val[nz_actual] = value;
            nz_actual++;
            
-           // Se simmetrica e OFF-diagonale, aggiungi simmetrico (col, row)
            if (mm_is_symmetric(matcode) && row != col) {
                mat->I[nz_actual] = col;
                mat->J[nz_actual] = row;
@@ -83,7 +73,7 @@ Matrix* read_matrix(const char *filename) {
 
        fclose(f);
        
-       // ===== AGGIORNA NNZ FINALE =====
+      
        mat->nz = nz_actual;
        mat->is_symmetric = mm_is_symmetric(matcode);
        
