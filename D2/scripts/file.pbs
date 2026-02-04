@@ -7,7 +7,7 @@
 #PBS -l walltime=06:00:00
 #PBS -l select=6:ncpus=24:mpiprocs=24:mem=4gb
 
-# Load modules gcc and mpich
+
 module load gcc91
 module load mpich-3.2.1--gcc-9.1.0
 
@@ -16,7 +16,6 @@ cd "$PBS_O_WORKDIR" || exit 1
 mkdir -p ../results
 mkdir -p ../results/logs
 
-# Calcolo dinamico delle risorse per il log
 NUM_NODES=$(cat $PBS_NODEFILE | sort | uniq | wc -l)
 TOTAL_PROCS=$(cat $PBS_NODEFILE | wc -l)
 
@@ -89,7 +88,6 @@ echo "System info saved to: $SYSTEM_INFO_FILE"
 echo ""
 
 echo "Verifying environment..."
-# Verifica che le cartelle esistano
 if [ ! -d "../src" ] || [ ! -d "../include" ] || [ ! -d "../data" ]; then
     echo "ERROR: Required directories (src/include/data) not found"
     echo "Current directory: $(pwd)"
@@ -97,7 +95,6 @@ if [ ! -d "../src" ] || [ ! -d "../include" ] || [ ! -d "../data" ]; then
     exit 1
 fi
 
-# Check benchmark script (Il tuo script si chiama test.sh)
 SCRIPT_NAME="test.sh"
 if [ ! -f "$SCRIPT_NAME" ]; then
     echo "ERROR: $SCRIPT_NAME not found"
@@ -107,7 +104,7 @@ if [ ! -f "$SCRIPT_NAME" ]; then
     exit 1
 fi
 
-# Just to make sure that test.sh is executable
+
 chmod +x "$SCRIPT_NAME"
 
 echo "Configuring MPI environment..."
@@ -116,19 +113,16 @@ export MPICH_CPU_BINDING=1
 echo "MPI configuration set."
 echo ""
 
-# Running the benchmark script
 echo "Starting time benchmark execution..."
 ./"$SCRIPT_NAME"
 
 exit_code=$?
 
-# Job info summary
 echo ""
 echo "--------------------------"
 if [ $exit_code -eq 0 ]; then
     echo "Job completed successfully!"
     
-    # Check MPI CSVs
     if [ -f "../results/strong_scaling_all.csv" ]; then
         num_strong=$(tail -n +2 ../results/strong_scaling_all.csv | wc -l)
         echo "Strong scaling (MPI): $num_strong runs -> ../results/strong_scaling_all.csv"
@@ -139,7 +133,6 @@ if [ $exit_code -eq 0 ]; then
         echo "Weak scaling (MPI):   $num_weak runs -> ../results/weak_scaling_all.csv"
     fi
 
-    # Check Hybrid CSVs
     if [ -f "../results/strong_scaling_hybrid.csv" ]; then
         num_hyb_strong=$(tail -n +2 ../results/strong_scaling_hybrid.csv | wc -l)
         echo "Strong scaling (Hyb): $num_hyb_strong runs -> ../results/strong_scaling_hybrid.csv"
