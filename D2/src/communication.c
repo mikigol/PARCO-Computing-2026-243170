@@ -12,12 +12,10 @@
 #endif
 #include "structures.h"
 
-// Prepara le strutture dati per MPI_Alltoallv
 void setup_communication_pattern(LocalCSR *mat, CommInfo *comm, int rank, int size, int N_globale) {
     int *ghost_flags = calloc(N_globale, sizeof(int));
     int n_ghosts = 0;
 
-    // 1. Trova quali colonne sono esterne (ghost)
     for (int i = 0; i < mat->n_local_nz; i++) {
         int g_col = mat->col_ind[i];
         if (GET_OWNER(g_col, size) != rank) {
@@ -29,25 +27,22 @@ void setup_communication_pattern(LocalCSR *mat, CommInfo *comm, int rank, int si
     }
     comm->num_ghosts = n_ghosts;
 
-    // 2. Crea lista richieste
     int *requested_ghosts = malloc(n_ghosts * sizeof(int));
     int *remap_array = malloc(N_globale * sizeof(int));
-    memset(remap_array, -1, N_globale * sizeof(int)); // Init a -1
+    memset(remap_array, -1, N_globale * sizeof(int)); 
 
     int count = 0;
     for (int c = 0; c < N_globale; c++) {
         if (ghost_flags[c]) {
             requested_ghosts[count] = c;
-            remap_array[c] = count; // Mappa: Globale -> Indice nel buffer Ghost
+            remap_array[c] = count; 
             count++;
         }
     }
     free(ghost_flags);
 
-    // 3. Rinumera colonne in CSR:
-    // Se locale -> indice locale
-    // Se ghost -> num_local_vec + indice_ghost
-    int my_x_dim = 0; // Dimensione parte locale del vettore
+    
+    int my_x_dim = 0; 
     for(int k=0; k<N_globale; k++) if(GET_OWNER(k, size) == rank) my_x_dim++;
 
     for (int i = 0; i < mat->n_local_nz; i++) {
@@ -60,18 +55,15 @@ void setup_communication_pattern(LocalCSR *mat, CommInfo *comm, int rank, int si
     }
     free(remap_array);
 
-    // 4. Scambio informazioni su chi deve inviare cosa (Handshake)
     comm->send_counts = calloc(size, sizeof(int));
     comm->recv_counts = calloc(size, sizeof(int));
 
-    // Dico a ogni processo quanti dati voglio da lui
     for(int i=0; i<n_ghosts; i++) {
         comm->recv_counts[GET_OWNER(requested_ghosts[i], size)]++;
     }
 
     MPI_Alltoall(comm->recv_counts, 1, MPI_INT, comm->send_counts, 1, MPI_INT, MPI_COMM_WORLD);
 
-    // Setup offsets
     comm->sdispls = malloc(size * sizeof(int));
     comm->rdispls = malloc(size * sizeof(int));
     comm->sdispls[0] = 0; comm->rdispls[0] = 0;
@@ -80,11 +72,9 @@ void setup_communication_pattern(LocalCSR *mat, CommInfo *comm, int rank, int si
         comm->rdispls[p] = comm->rdispls[p-1] + comm->recv_counts[p-1];
     }
 
-    // Scambio effettivo degli indici richiesti
     comm->total_to_send = comm->sdispls[size-1] + comm->send_counts[size-1];
     int *indices_to_export = malloc(comm->total_to_send * sizeof(int));
     
-    // Devo ordinare requested_ghosts per proprietario prima di inviare
     int *sorted_reqs = malloc(n_ghosts * sizeof(int));
     int *offsets = calloc(size, sizeof(int));
     memcpy(offsets, comm->rdispls, size * sizeof(int));
@@ -98,13 +88,11 @@ void setup_communication_pattern(LocalCSR *mat, CommInfo *comm, int rank, int si
     MPI_Alltoallv(sorted_reqs, comm->recv_counts, comm->rdispls, MPI_INT,
                   indices_to_export, comm->send_counts, comm->sdispls, MPI_INT, MPI_COMM_WORLD);
     
-    // Preparo la lista di esportazione (Global -> Local)
     comm->export_indices = malloc(comm->total_to_send * sizeof(int));
     for(int i=0; i<comm->total_to_send; i++) {
         comm->export_indices[i] = GET_LOCAL_IDX(indices_to_export[i], size);
     }
 
-    // Alloco buffer finali
     comm->send_buffer = malloc(comm->total_to_send * sizeof(double));
     comm->recv_buffer = malloc(n_ghosts * sizeof(double));
 
@@ -112,20 +100,16 @@ void setup_communication_pattern(LocalCSR *mat, CommInfo *comm, int rank, int si
     free(indices_to_export);
 }
 
-// Esegue lo scambio runtime
 void perform_ghost_exchange(CommInfo *comm, double *full_x, int local_dim) {
-    // 1. Pack (OpenMP parallel)
     #pragma omp parallel for
     for (int i = 0; i < comm->total_to_send; i++) {
         comm->send_buffer[i] = full_x[comm->export_indices[i]];
     }
 
-    // 2. MPI Exchange
     MPI_Alltoallv(comm->send_buffer, comm->send_counts, comm->sdispls, MPI_DOUBLE,
                   comm->recv_buffer, comm->recv_counts, comm->rdispls, MPI_DOUBLE, 
                   MPI_COMM_WORLD);
 
-    // 3. Unpack (diretto in coda a x)
     #pragma omp parallel for
     for (int i = 0; i < comm->num_ghosts; i++) {
         full_x[local_dim + i] = comm->recv_buffer[i];
@@ -133,21 +117,17 @@ void perform_ghost_exchange(CommInfo *comm, double *full_x, int local_dim) {
 }
 
 
-// --- IMPLEMENTAZIONE GENERATORE SINTETICO (BLOCK DISTRIBUTION) ---
-// Allineata con la logica del main (chunk) per coerenza tra Weak e Strong scaling
+
 void generate_synthetic_matrix(int rows_per_proc, int nnz_per_row, int rank, int size, LocalCSR *local_mat, int *M_glob, int *N_glob, int *nz_glob) {
     
     int i, j;
 
-    // 1. Calcolo dimensioni globali
-    // Weak scaling: La dimensione totale cresce col numero di processi
+    
     *M_glob = rows_per_proc * size;
-    *N_glob = *M_glob; // Matrice quadrata
+    *N_glob = *M_glob; 
 
-    // 2. Allocazione Struttura Locale
     local_mat->n_local_rows = rows_per_proc;
     
-    // Stima per allocazione (con un margine di sicurezza per la varianza random)
     int estimated_nz = rows_per_proc * (nnz_per_row + 10); 
     
     local_mat->row_ptr = (int *)malloc((rows_per_proc + 1) * sizeof(int));
@@ -159,37 +139,29 @@ void generate_synthetic_matrix(int rows_per_proc, int nnz_per_row, int rank, int
         MPI_Abort(MPI_COMM_WORLD, 1);
     }
 
-    // 3. Generazione Dati (Logica Random per colonne)
-    srand(rank * 12345 + 789); // Seed deterministico ma diverso per rank
+    srand(rank * 12345 + 789); 
     
     int current_total_nz = 0;
     local_mat->row_ptr[0] = 0;
 
-    // --- DIFFERENZA CHIAVE: Qui usiamo logica locale standard, non ciclica ---
-    // Ogni processo riempie le sue 'rows_per_proc' righe.
-    // L'offset globale è implicito (Rank 0: righe 0..99, Rank 1: 100..199, etc.)
+   
     
     for (i = 0; i < rows_per_proc; i++) {
-        // Variabilità realistica nel numero di elementi per riga (+/- 20%)
         int variance = nnz_per_row / 5; 
         if (variance < 1) variance = 1;
         int actual_nnz = nnz_per_row + (rand() % (2 * variance + 1)) - variance;
         
-        // Clamp (non meno di 1, non più della dimensione matrice)
         if (actual_nnz < 1) actual_nnz = 1;
         if (actual_nnz > *N_glob) actual_nnz = *N_glob;
 
-        // Generiamo colonne uniche casuali
         for (j = 0; j < actual_nnz; j++) {
             int col;
             int is_duplicate;
             
-            // Tentativi per trovare una colonna non ancora usata in questa riga
             do {
                 is_duplicate = 0;
-                col = rand() % (*N_glob); // Colonna casuale su tutta la matrice
+                col = rand() % (*N_glob); 
                 
-                // Controllo duplicati semplice (scansiona la riga corrente)
                 for (int k = local_mat->row_ptr[i]; k < current_total_nz; k++) {
                     if (local_mat->col_ind[k] == col) {
                         is_duplicate = 1;
@@ -198,12 +170,10 @@ void generate_synthetic_matrix(int rows_per_proc, int nnz_per_row, int rank, int
                 }
             } while (is_duplicate);
 
-            // Scrittura CSR
             local_mat->col_ind[current_total_nz] = col;
-            local_mat->val[current_total_nz] = ((double)rand() / RAND_MAX) * 2.0 - 1.0; // Valori tra -1 e 1
+            local_mat->val[current_total_nz] = ((double)rand() / RAND_MAX) * 2.0 - 1.0; 
             current_total_nz++;
             
-            // Controllo sicurezza array overflow (realloc se necessario)
             if (current_total_nz >= estimated_nz) {
                 estimated_nz *= 2;
                 local_mat->col_ind = realloc(local_mat->col_ind, estimated_nz * sizeof(int));
@@ -215,11 +185,9 @@ void generate_synthetic_matrix(int rows_per_proc, int nnz_per_row, int rank, int
     
     local_mat->n_local_nz = current_total_nz;
 
-    // 4. Reallocazione finale alla dimensione esatta per risparmiare RAM
     local_mat->col_ind = realloc(local_mat->col_ind, current_total_nz * sizeof(int));
     local_mat->val = realloc(local_mat->val, current_total_nz * sizeof(double));
 
-    // 5. Statistiche Globali
     long long loc_nz = local_mat->n_local_nz;
     long long glob_nz_long = 0;
     MPI_Allreduce(&loc_nz, &glob_nz_long, 1, MPI_LONG_LONG, MPI_SUM, MPI_COMM_WORLD);
