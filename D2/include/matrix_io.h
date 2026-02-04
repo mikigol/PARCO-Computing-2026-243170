@@ -2,15 +2,15 @@
 #define MATRIX_IO_H
 
 typedef struct {
-    int M;              // righe
-    int N;              // colonne
-    int nz;             // non-zero
+    int M;              
+    int N;               
+    int nz;             
     int is_symmetric;
-    int *I, *J;         // coordinate COO
-    double *val;        // valori
-    int *prefixSum;     // CSR prefix
-    int *sorted_J;      // CSR colonne ordinate
-    double *sorted_val; // CSR valori ordinati
+    int *I, *J;         
+    double *val;        
+    int *prefixSum;     
+    int *sorted_J;      
+    double *sorted_val; 
 } Matrix;
 
 Matrix* read_matrix(const char *filename);
